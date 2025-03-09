@@ -3,6 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.ViewportAdapters;
 using MonoGame.Extended;
+using System;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace OriginOfLoot
@@ -17,7 +19,10 @@ namespace OriginOfLoot
         Texture2D map;
         Texture2D character;
         Vector2 characterPosition;
-        float characterSpeed;
+        Vector2 characterVelocity;
+        float characterFriction;
+        float characterAcceleration;
+        float maxCharacterSpeed;
         Texture2D hammer;
         Vector2 hammerPosition;
         Vector2 hammerOffset = new Vector2(-7, 8);
@@ -38,10 +43,16 @@ namespace OriginOfLoot
             _graphics.ApplyChanges();
 
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
-            _camera = new OrthographicCamera(_viewportAdapter); 
+            _camera = new OrthographicCamera(_viewportAdapter);
 
-            characterSpeed = 100f;
-
+            // Velocity is both Speed and Direction, which will be multiplied by elapsed GameTime in each frame.
+            characterVelocity = new(0, 0);
+            // 
+            characterFriction = 0.0000001f;
+            //
+            characterAcceleration = 950f;
+            //
+            maxCharacterSpeed = 180f;
 
             base.Initialize();
         }
@@ -55,48 +66,82 @@ namespace OriginOfLoot
             hammer = Content.Load<Texture2D>("HammerA1");
         }
 
+        // `Update()` is called once every frame, and crucially accepts a `GameTime` parameter.
         protected override void Update(GameTime gameTime)
         {
-            var kstate = Keyboard.GetState();
+            KeyboardState kstate = Keyboard.GetState(); // `kstate` knows about all keys pressed in this particular frame
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             if (kstate.IsKeyDown(Keys.Escape))
             {
-                Exit();
+                Exit(); // Allows to exit the game with escape
             }
 
-            // Movement:
+            /* ==========================
+                     Player Movement
+               ========================== */
 
-            Vector2 movement = Vector2.Zero;
+            Vector2 characterDirection = Vector2.Zero; // We use a `Vector2` to capture direction
 
-            if (kstate.IsKeyDown(Keys.Right))
+            if (kstate.IsKeyDown(Keys.Right) || kstate.IsKeyDown(Keys.D))
             {
-                movement.X += 1;
+                characterDirection.X += 1;
             }
-            if (kstate.IsKeyDown(Keys.Left))
+            if (kstate.IsKeyDown(Keys.Left) || kstate.IsKeyDown(Keys.A))
             {
-                movement.X -= 1;
+                characterDirection.X -= 1;
             }
-            if (kstate.IsKeyDown(Keys.Up))
+            if (kstate.IsKeyDown(Keys.Up) || kstate.IsKeyDown(Keys.W))
             {
-                movement.Y -= 1;
+                characterDirection.Y -= 1;
             }
-            if (kstate.IsKeyDown(Keys.Down))
+            if (kstate.IsKeyDown(Keys.Down) || kstate.IsKeyDown(Keys.S))
             {
-                movement.Y += 1;
+                characterDirection.Y += 1;
             }
 
-            if (movement.Length() > 1)
+            if (characterDirection != Vector2.Zero) // The player is moving in a direction
             {
-                movement.Normalize();
+                // In general, we always normalize the direction Vector2, into a "Unit vector".
+                // This turns a diagonal (1, -1) into (0.707, -0.707) and length == 1.
+                characterDirection.Normalize();
+
+                // Velocity += Direction *  (Acceleration * Time) <- Speed 
+                characterVelocity += characterDirection * characterAcceleration * deltaTime;
+            }
+            if (characterDirection.X == 0) // The player has no input direction horizontally
+            {
+                characterVelocity.X *= MathF.Pow(characterFriction, deltaTime); // Apply friction X
+            }
+            if (characterDirection.Y == 0) // The player has no input direction vertically
+            {
+                characterVelocity.Y *= MathF.Pow(characterFriction, deltaTime); // Apply friction Y
             }
 
-            Vector2 finalMovement = movement * characterSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            characterPosition += finalMovement;
+            // Ensure that we are not breaking speed limits in any direction
+            if (characterVelocity.LengthSquared() > maxCharacterSpeed * maxCharacterSpeed)
+            {
+                characterVelocity = Vector2.Normalize(characterVelocity) * maxCharacterSpeed;
+            }
 
-            // Boundary enforcement:
 
+            // Compute the final `characterMovement`
+            Vector2 characterMovement = characterVelocity * deltaTime;
+            // Add `characterMovement` to position
+            characterPosition += characterMovement;
+
+
+            // Make the hammer follow the position of the character.
+            hammerPosition = characterPosition + hammerOffset;
+
+
+            /* ==========================
+                  Boundary Enforcement
+               ========================== */
+
+            // In this section, we currently force the screen boundary, but nothing related to in-game walls.
             int Xmax = _viewportAdapter.VirtualWidth - character.Width;
             int Ymax = _viewportAdapter.VirtualHeight - character.Height;
-
 
             if (characterPosition.X > Xmax)
             {
@@ -116,9 +161,11 @@ namespace OriginOfLoot
                 characterPosition.Y = 0;
             }
 
-            // Other
 
-            hammerPosition = characterPosition + hammerOffset;
+            /* ==========================
+                          TBA
+               ========================== */
+
 
             base.Update(gameTime);
         }
