@@ -45,7 +45,6 @@ namespace OriginOfLoot
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
             _camera = new OrthographicCamera(_viewportAdapter);
 
-            // Velocity is both Direction and Speed (Direction * Acceleration * deltaTime)
             characterVelocity = new(0, 0);
             characterAcceleration = 950f;
             characterFriction = 0.0000001f;
@@ -66,53 +65,59 @@ namespace OriginOfLoot
         // `Update()` is called once every frame.
         protected override void Update(GameTime gameTime)
         {
-            KeyboardState kstate = Keyboard.GetState(); // `kstate` knows about all keys pressed in this particular frame
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
+            KeyboardState kstate = Keyboard.GetState();
             if (kstate.IsKeyDown(Keys.Escape))
             {
-                Exit(); // Allows to exit the game with escape
+                Exit();
             }
 
             /* ==========================
                      Player Movement
                ========================== */
 
-            Vector2 characterDirection = Vector2.Zero; // We use a `Vector2` to capture direction
+            Vector2 characterInputDirection = Vector2.Zero;
 
             if (kstate.IsKeyDown(Keys.Right) || kstate.IsKeyDown(Keys.D))
             {
-                characterDirection.X += 1;
+                characterInputDirection.X += 1;
             }
             if (kstate.IsKeyDown(Keys.Left) || kstate.IsKeyDown(Keys.A))
             {
-                characterDirection.X -= 1;
+                characterInputDirection.X -= 1;
             }
             if (kstate.IsKeyDown(Keys.Up) || kstate.IsKeyDown(Keys.W))
             {
-                characterDirection.Y -= 1;
+                characterInputDirection.Y -= 1;
             }
             if (kstate.IsKeyDown(Keys.Down) || kstate.IsKeyDown(Keys.S))
             {
-                characterDirection.Y += 1;
+                characterInputDirection.Y += 1;
             }
 
-            if (characterDirection != Vector2.Zero) // The player inputs keys to actively move
+            if (characterInputDirection != Vector2.Zero) // The player inputs keys to actively move
             {
                 // In general, we always normalize the direction vector, into a "Unit vector".
                 // This turns a diagonal (1, -1) into (0.707, -0.707) and length == 1.
-                characterDirection.Normalize();
+                characterInputDirection.Normalize();
 
-                // Velocity += Direction *  (Acceleration * Time) <- Speed 
-                characterVelocity += characterDirection * characterAcceleration * deltaTime;
+                // --> Acceleration has been disabled for now, to ensure movement feels responsive.
+                // characterVelocity += characterInputDirection * characterAcceleration * deltaTime;
+                characterVelocity = characterInputDirection * maxCharacterSpeed;
             }
-            if (characterDirection.X == 0) // The player has no input direction horizontally
+            else
             {
-                characterVelocity.X *= MathF.Pow(characterFriction, deltaTime); // Apply friction X
-            }
-            if (characterDirection.Y == 0) // The player has no input direction vertically
-            {
-                characterVelocity.Y *= MathF.Pow(characterFriction, deltaTime); // Apply friction Y
+                characterVelocity.X = 0;
+                characterVelocity.Y = 0;
+                // --> Friction has been disabled for now, to ensure movement feels responsive.
+                //if (characterInputDirection.X == 0)
+                //{
+                //    characterVelocity.X *= MathF.Pow(characterFriction, deltaTime);
+                //}
+                //if (characterInputDirection.Y == 0)
+                //{
+                //    characterVelocity.Y *= MathF.Pow(characterFriction, deltaTime);
+                //}
             }
 
             // Ensure that we are not breaking speed limits in any direction
@@ -121,12 +126,9 @@ namespace OriginOfLoot
                 characterVelocity = Vector2.Normalize(characterVelocity) * maxCharacterSpeed;
             }
 
-
-            // Compute the final `characterMovement`
+            // Compute final movement vector and add it to current position vector
             Vector2 characterMovement = characterVelocity * deltaTime;
-            // Add `characterMovement` to position
             characterPosition += characterMovement;
-
 
             // Make the hammer follow the position of the character.
             hammerPosition = characterPosition + hammerOffset;
