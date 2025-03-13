@@ -37,9 +37,9 @@ namespace OriginOfLoot
         protected override void Initialize()
         {
             Window.AllowUserResizing = false;
-            _graphics.PreferredBackBufferWidth = 1920;
-            _graphics.PreferredBackBufferHeight = 1080;
-            _graphics.IsFullScreen = true;
+            _graphics.PreferredBackBufferWidth = 1280;
+            _graphics.PreferredBackBufferHeight = 720;
+            _graphics.IsFullScreen = false;
             _graphics.ApplyChanges();
 
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
@@ -58,9 +58,9 @@ namespace OriginOfLoot
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            map = Content.Load<Texture2D>("MapA25");
-            character = Content.Load<Texture2D>("CharacterA8");
-            hammer = Content.Load<Texture2D>("HammerA1");
+            map = Content.Load<Texture2D>("ase_prod/map");
+            character = Content.Load<Texture2D>("ase_prod/character");
+            hammer = Content.Load<Texture2D>("ase_prod/hammer");
         }
 
         // `Update()` is called once every frame.
