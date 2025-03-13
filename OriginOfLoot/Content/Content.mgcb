@@ -13,37 +13,7 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin bin/DesktopGL/CharacterA8.xnb
-/importer:
-/processor:
-/build:bin/DesktopGL/CharacterA8.xnb
-
-#begin bin/DesktopGL/Content/CharacterA8.xnb
-/importer:
-/processor:
-/build:bin/DesktopGL/Content/CharacterA8.xnb
-
-#begin bin/DesktopGL/Content/HammerA1.xnb
-/importer:
-/processor:
-/build:bin/DesktopGL/Content/HammerA1.xnb
-
-#begin bin/DesktopGL/Content/MapA25.xnb
-/importer:
-/processor:
-/build:bin/DesktopGL/Content/MapA25.xnb
-
-#begin bin/DesktopGL/HammerA1.xnb
-/importer:
-/processor:
-/build:bin/DesktopGL/HammerA1.xnb
-
-#begin bin/DesktopGL/MapA25.xnb
-/importer:
-/processor:
-/build:bin/DesktopGL/MapA25.xnb
-
-#begin character.png
+#begin CharacterA8.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -53,14 +23,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:character.png
+/build:CharacterA8.png
 
-#begin Content.mgcb
-/importer:
-/processor:
-/build:Content.mgcb
-
-#begin hammer.png
+#begin HammerA1.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -70,9 +35,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:hammer.png
+/build:HammerA1.png
 
-#begin map.png
+#begin MapA25.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -82,55 +47,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:map.png
-
-#begin obj/DesktopGL/.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/.mgcontent
-
-#begin obj/DesktopGL/.mgstats
-/importer:
-/processor:
-/build:obj/DesktopGL/.mgstats
-
-#begin obj/DesktopGL/CharacterA8.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/CharacterA8.mgcontent
-
-#begin obj/DesktopGL/HammerA1.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/HammerA1.mgcontent
-
-#begin obj/DesktopGL/MapA25.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/MapA25.mgcontent
-
-#begin obj/DesktopGL/net8.0/Content/.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/net8.0/Content/.mgcontent
-
-#begin obj/DesktopGL/net8.0/Content/.mgstats
-/importer:
-/processor:
-/build:obj/DesktopGL/net8.0/Content/.mgstats
-
-#begin obj/DesktopGL/net8.0/Content/CharacterA8.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/net8.0/Content/CharacterA8.mgcontent
-
-#begin obj/DesktopGL/net8.0/Content/HammerA1.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/net8.0/Content/HammerA1.mgcontent
-
-#begin obj/DesktopGL/net8.0/Content/MapA25.mgcontent
-/importer:
-/processor:
-/build:obj/DesktopGL/net8.0/Content/MapA25.mgcontent
+/build:MapA25.png
 

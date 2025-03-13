@@ -58,9 +58,9 @@ namespace OriginOfLoot
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            map = Content.Load<Texture2D>("map");
-            character = Content.Load<Texture2D>("character");
-            hammer = Content.Load<Texture2D>("hammer");
+            map = Content.Load<Texture2D>("MapA25");
+            character = Content.Load<Texture2D>("CharacterA8");
+            hammer = Content.Load<Texture2D>("HammerA1");
         }
 
         // `Update()` is called once every frame.
