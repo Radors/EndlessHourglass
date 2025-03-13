@@ -37,21 +37,18 @@ namespace OriginOfLoot
         protected override void Initialize()
         {
             Window.AllowUserResizing = false;
-            _graphics.PreferredBackBufferWidth = 1280;
-            _graphics.PreferredBackBufferHeight = 720;
-            _graphics.IsFullScreen = false;
+            _graphics.PreferredBackBufferWidth = 1920;
+            _graphics.PreferredBackBufferHeight = 1080;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
             _camera = new OrthographicCamera(_viewportAdapter);
 
-            // Velocity is both Speed and Direction, which will be multiplied by elapsed GameTime in each frame.
+            // Velocity is both Direction and Speed (Direction * Acceleration * deltaTime)
             characterVelocity = new(0, 0);
-            // 
-            characterFriction = 0.0000001f;
-            //
             characterAcceleration = 950f;
-            //
+            characterFriction = 0.0000001f;
             maxCharacterSpeed = 180f;
 
             base.Initialize();
@@ -66,7 +63,7 @@ namespace OriginOfLoot
             hammer = Content.Load<Texture2D>("HammerA1");
         }
 
-        // `Update()` is called once every frame, and crucially accepts a `GameTime` parameter.
+        // `Update()` is called once every frame.
         protected override void Update(GameTime gameTime)
         {
             KeyboardState kstate = Keyboard.GetState(); // `kstate` knows about all keys pressed in this particular frame
@@ -100,9 +97,9 @@ namespace OriginOfLoot
                 characterDirection.Y += 1;
             }
 
-            if (characterDirection != Vector2.Zero) // The player is moving in a direction
+            if (characterDirection != Vector2.Zero) // The player inputs keys to actively move
             {
-                // In general, we always normalize the direction Vector2, into a "Unit vector".
+                // In general, we always normalize the direction vector, into a "Unit vector".
                 // This turns a diagonal (1, -1) into (0.707, -0.707) and length == 1.
                 characterDirection.Normalize();
 
@@ -170,6 +167,7 @@ namespace OriginOfLoot
             base.Update(gameTime);
         }
 
+        // `Draw()` is also called once every frame, right after `Update()`
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Aquamarine);
