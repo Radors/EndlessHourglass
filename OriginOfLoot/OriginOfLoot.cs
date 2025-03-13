@@ -20,12 +20,15 @@ namespace OriginOfLoot
         Texture2D character;
         Vector2 characterPosition;
         Vector2 characterVelocity;
+        Vector2 characterMovement;
+        bool characterFacingRight;
         float characterFriction;
         float characterAcceleration;
         float maxCharacterSpeed;
         Texture2D hammer;
         Vector2 hammerPosition;
-        Vector2 hammerOffset = new Vector2(-7, 8);
+        Vector2 hammerOffsetLeft = new Vector2(-7, 8);
+        Vector2 hammerOffsetRight = new Vector2(7, 8);
 
         public OriginOfLoot()
         {
@@ -104,6 +107,8 @@ namespace OriginOfLoot
                 // --> Acceleration has been disabled for now, to ensure movement feels responsive.
                 // characterVelocity += characterInputDirection * characterAcceleration * deltaTime;
                 characterVelocity = characterInputDirection * maxCharacterSpeed;
+
+                characterFacingRight = characterVelocity.X > 0 ? true : false;
             }
             else
             {
@@ -127,11 +132,11 @@ namespace OriginOfLoot
             }
 
             // Compute final movement vector and add it to current position vector
-            Vector2 characterMovement = characterVelocity * deltaTime;
+            characterMovement = characterVelocity * deltaTime;
             characterPosition += characterMovement;
 
             // Make the hammer follow the position of the character.
-            hammerPosition = characterPosition + hammerOffset;
+            hammerPosition = characterPosition + (characterFacingRight ? hammerOffsetRight : hammerOffsetLeft);
 
 
             /* ==========================
@@ -176,8 +181,28 @@ namespace OriginOfLoot
 
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
             _spriteBatch.Draw(map, new Vector2(0, 0), Color.White);
-            _spriteBatch.Draw(character, characterPosition, Color.White);
-            _spriteBatch.Draw(hammer, hammerPosition, Color.White);
+            _spriteBatch.Draw(
+                texture: character,
+                position: characterPosition,
+                sourceRectangle: default,
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: characterFacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                layerDepth: 0f
+            );
+            _spriteBatch.Draw(
+                texture: hammer,
+                position: hammerPosition,
+                sourceRectangle: default,
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: characterFacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                layerDepth: 0f
+            );
             _spriteBatch.End();
 
             base.Draw(gameTime);
