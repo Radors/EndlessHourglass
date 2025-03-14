@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.ViewportAdapters;
 using MonoGame.Extended;
+using OriginOfLoot.Enums;
 using System;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace OriginOfLoot
@@ -16,19 +16,24 @@ namespace OriginOfLoot
         private SpriteBatch _spriteBatch;
         private BoxingViewportAdapter _viewportAdapter;
 
-        Texture2D map;
-        Texture2D character;
-        Vector2 characterPosition;
-        Vector2 characterVelocity;
-        Vector2 characterMovement;
+        Texture2D mapTexture;
+        Texture2D characterTexture;
+        Texture2D hammerTexture;
+        Texture2D swordTexture;
+        Texture2D bowTexture;
         bool characterFacingRight;
         float characterFriction;
         float characterAcceleration;
         float maxCharacterSpeed;
-        Texture2D hammer;
-        Vector2 hammerPosition;
-        Vector2 hammerOffsetLeft = new Vector2(-7, 8);
-        Vector2 hammerOffsetRight = new Vector2(7, 8);
+        CharacterWeapon characterWeapon;
+        Vector2 characterPosition;
+        Vector2 characterVelocity;
+        Vector2 characterMovement;
+        Vector2 characterWeaponPosition;
+        Vector2 hammerOffset;
+        Vector2 swordOffset;
+        Vector2 bowOffset;
+        Vector2 currentWeaponOffset;
 
         public OriginOfLoot()
         {
@@ -40,9 +45,12 @@ namespace OriginOfLoot
         protected override void Initialize()
         {
             Window.AllowUserResizing = false;
-            _graphics.PreferredBackBufferWidth = 1280;
-            _graphics.PreferredBackBufferHeight = 720;
-            _graphics.IsFullScreen = false;
+            //_graphics.PreferredBackBufferWidth = 1280;
+            //_graphics.PreferredBackBufferHeight = 720;
+            //_graphics.IsFullScreen = false;
+            _graphics.PreferredBackBufferWidth = 1920;
+            _graphics.PreferredBackBufferHeight = 1080;
+            _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
@@ -52,6 +60,10 @@ namespace OriginOfLoot
             characterAcceleration = 950f;
             characterFriction = 0.0000001f;
             maxCharacterSpeed = 180f;
+            hammerOffset = new Vector2(7, 8);
+            swordOffset = new Vector2(7, 8);
+            bowOffset = new Vector2(7, 8);
+            characterWeapon = CharacterWeapon.Hammer;
 
             base.Initialize();
         }
@@ -60,9 +72,11 @@ namespace OriginOfLoot
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            map = Content.Load<Texture2D>("ase_prod/map");
-            character = Content.Load<Texture2D>("ase_prod/character");
-            hammer = Content.Load<Texture2D>("ase_prod/hammer");
+            mapTexture = Content.Load<Texture2D>("ase_prod/map");
+            characterTexture = Content.Load<Texture2D>("ase_prod/character");
+            hammerTexture = Content.Load<Texture2D>("ase_prod/hammer");
+            swordTexture = Content.Load<Texture2D>("ase_prod/sword");
+            bowTexture = Content.Load<Texture2D>("ase_prod/sword"); // <----- change
         }
 
         // `Update()` is called once every frame.
@@ -76,7 +90,7 @@ namespace OriginOfLoot
             }
 
             /* ==========================
-                     Player Movement
+                   Character Movement
                ========================== */
 
             Vector2 characterInputDirection = Vector2.Zero;
@@ -108,7 +122,12 @@ namespace OriginOfLoot
                 // characterVelocity += characterInputDirection * characterAcceleration * deltaTime;
                 characterVelocity = characterInputDirection * maxCharacterSpeed;
 
-                characterFacingRight = characterVelocity.X > 0 ? true : false;
+                characterFacingRight = characterInputDirection.X switch
+                {
+                    > 0 => true,
+                    < 0 => false,
+                    _ => characterFacingRight
+                };
             }
             else
             {
@@ -135,17 +154,14 @@ namespace OriginOfLoot
             characterMovement = characterVelocity * deltaTime;
             characterPosition += characterMovement;
 
-            // Make the hammer follow the position of the character.
-            hammerPosition = characterPosition + (characterFacingRight ? hammerOffsetRight : hammerOffsetLeft);
-
 
             /* ==========================
                   Boundary Enforcement
                ========================== */
 
             // In this section, we currently force the screen boundary, but nothing related to in-game walls.
-            int Xmax = _viewportAdapter.VirtualWidth - character.Width;
-            int Ymax = _viewportAdapter.VirtualHeight - character.Height;
+            int Xmax = _viewportAdapter.VirtualWidth - characterTexture.Width;
+            int Ymax = _viewportAdapter.VirtualHeight - characterTexture.Height;
 
             if (characterPosition.X > Xmax)
             {
@@ -167,8 +183,34 @@ namespace OriginOfLoot
 
 
             /* ==========================
-                          TBA
+                    Character Weapon
                ========================== */
+
+            if (kstate.IsKeyDown(Keys.NumPad1))
+            {
+                characterWeapon = CharacterWeapon.Hammer;
+            }
+            if (kstate.IsKeyDown(Keys.NumPad2))
+            {
+                characterWeapon = CharacterWeapon.Sword;
+            }
+            if (kstate.IsKeyDown(Keys.NumPad3))
+            {
+                characterWeapon = CharacterWeapon.Bow;
+            }
+                
+            currentWeaponOffset = characterWeapon switch
+            {
+                CharacterWeapon.Hammer => hammerOffset,
+                CharacterWeapon.Sword => swordOffset,
+                CharacterWeapon.Bow => bowOffset,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            if (!characterFacingRight)
+            {
+                currentWeaponOffset = new Vector2(-currentWeaponOffset.X, currentWeaponOffset.Y);
+            }
+            characterWeaponPosition = characterPosition + currentWeaponOffset;
 
 
             base.Update(gameTime);
@@ -180,9 +222,9 @@ namespace OriginOfLoot
             GraphicsDevice.Clear(Color.Aquamarine);
 
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
-            _spriteBatch.Draw(map, new Vector2(0, 0), Color.White);
+            _spriteBatch.Draw(mapTexture, new Vector2(0, 0), Color.White);
             _spriteBatch.Draw(
-                texture: character,
+                texture: characterTexture,
                 position: characterPosition,
                 sourceRectangle: default,
                 color: Color.White,
@@ -193,14 +235,19 @@ namespace OriginOfLoot
                 layerDepth: 0f
             );
             _spriteBatch.Draw(
-                texture: hammer,
-                position: hammerPosition,
+                texture: characterWeapon switch { 
+                    CharacterWeapon.Hammer => hammerTexture,
+                    CharacterWeapon.Sword => swordTexture,
+                    CharacterWeapon.Bow => bowTexture,
+                    _ => throw new ArgumentOutOfRangeException()
+                },
+                position: characterWeaponPosition,
                 sourceRectangle: default,
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
                 scale: 1f,
-                effects: characterFacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                effects: characterFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: 0f
             );
             _spriteBatch.End();
