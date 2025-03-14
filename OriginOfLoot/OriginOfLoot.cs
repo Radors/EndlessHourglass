@@ -76,7 +76,7 @@ namespace OriginOfLoot
             playerTexture = Content.Load<Texture2D>("ase_prod/player");
             hammerTexture = Content.Load<Texture2D>("ase_prod/hammer");
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
-            staffTexture = Content.Load<Texture2D>("ase_prod/sword"); // <----- change
+            staffTexture = Content.Load<Texture2D>("ase_prod/staff");
         }
 
         // `Update()` is called once every frame.
