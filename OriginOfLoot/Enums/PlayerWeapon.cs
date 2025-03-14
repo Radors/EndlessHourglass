@@ -1,9 +1,9 @@
 ﻿namespace OriginOfLoot.Enums
 {
-    public enum CharacterWeapon
+    public enum PlayerWeapon
     {
         Hammer,
         Sword,
-        Bow
+        Staff
     }
 }

@@ -17,22 +17,22 @@ namespace OriginOfLoot
         private BoxingViewportAdapter _viewportAdapter;
 
         Texture2D mapTexture;
-        Texture2D characterTexture;
+        Texture2D playerTexture;
         Texture2D hammerTexture;
         Texture2D swordTexture;
-        Texture2D bowTexture;
-        bool characterFacingRight;
-        float characterFriction;
-        float characterAcceleration;
-        float maxCharacterSpeed;
-        CharacterWeapon characterWeapon;
-        Vector2 characterPosition;
-        Vector2 characterVelocity;
-        Vector2 characterMovement;
-        Vector2 characterWeaponPosition;
+        Texture2D staffTexture;
+        bool playerFacingRight;
+        float playerFriction;
+        float playerAcceleration;
+        float maxplayerSpeed;
+        PlayerWeapon playerWeapon;
+        Vector2 playerPosition;
+        Vector2 playerVelocity;
+        Vector2 playerMovement;
+        Vector2 playerWeaponPosition;
         Vector2 hammerOffset;
         Vector2 swordOffset;
-        Vector2 bowOffset;
+        Vector2 staffOffset;
         Vector2 currentWeaponOffset;
 
         public OriginOfLoot()
@@ -56,14 +56,14 @@ namespace OriginOfLoot
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
             _camera = new OrthographicCamera(_viewportAdapter);
 
-            characterVelocity = new(0, 0);
-            characterAcceleration = 950f;
-            characterFriction = 0.0000001f;
-            maxCharacterSpeed = 180f;
+            playerVelocity = new(0, 0);
+            playerAcceleration = 950f;
+            playerFriction = 0.0000001f;
+            maxplayerSpeed = 180f;
             hammerOffset = new Vector2(7, 8);
             swordOffset = new Vector2(7, 8);
-            bowOffset = new Vector2(7, 8);
-            characterWeapon = CharacterWeapon.Hammer;
+            staffOffset = new Vector2(7, 8);
+            playerWeapon = PlayerWeapon.Hammer;
 
             base.Initialize();
         }
@@ -73,10 +73,10 @@ namespace OriginOfLoot
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             mapTexture = Content.Load<Texture2D>("ase_prod/map");
-            characterTexture = Content.Load<Texture2D>("ase_prod/character");
+            playerTexture = Content.Load<Texture2D>("ase_prod/player");
             hammerTexture = Content.Load<Texture2D>("ase_prod/hammer");
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
-            bowTexture = Content.Load<Texture2D>("ase_prod/sword"); // <----- change
+            staffTexture = Content.Load<Texture2D>("ase_prod/sword"); // <----- change
         }
 
         // `Update()` is called once every frame.
@@ -90,69 +90,69 @@ namespace OriginOfLoot
             }
 
             /* ==========================
-                   Character Movement
+                   player Movement
                ========================== */
 
-            Vector2 characterInputDirection = Vector2.Zero;
+            Vector2 playerInputDirection = Vector2.Zero;
 
             if (kstate.IsKeyDown(Keys.Right) || kstate.IsKeyDown(Keys.D))
             {
-                characterInputDirection.X += 1;
+                playerInputDirection.X += 1;
             }
             if (kstate.IsKeyDown(Keys.Left) || kstate.IsKeyDown(Keys.A))
             {
-                characterInputDirection.X -= 1;
+                playerInputDirection.X -= 1;
             }
             if (kstate.IsKeyDown(Keys.Up) || kstate.IsKeyDown(Keys.W))
             {
-                characterInputDirection.Y -= 1;
+                playerInputDirection.Y -= 1;
             }
             if (kstate.IsKeyDown(Keys.Down) || kstate.IsKeyDown(Keys.S))
             {
-                characterInputDirection.Y += 1;
+                playerInputDirection.Y += 1;
             }
 
-            if (characterInputDirection != Vector2.Zero) // The player inputs keys to actively move
+            if (playerInputDirection != Vector2.Zero) // The player inputs keys to actively move
             {
                 // In general, we always normalize the direction vector, into a "Unit vector".
                 // This turns a diagonal (1, -1) into (0.707, -0.707) and length == 1.
-                characterInputDirection.Normalize();
+                playerInputDirection.Normalize();
 
                 // --> Acceleration has been disabled for now, to ensure movement feels responsive.
-                // characterVelocity += characterInputDirection * characterAcceleration * deltaTime;
-                characterVelocity = characterInputDirection * maxCharacterSpeed;
+                // playerVelocity += playerInputDirection * playerAcceleration * deltaTime;
+                playerVelocity = playerInputDirection * maxplayerSpeed;
 
-                characterFacingRight = characterInputDirection.X switch
+                playerFacingRight = playerInputDirection.X switch
                 {
                     > 0 => true,
                     < 0 => false,
-                    _ => characterFacingRight
+                    _ => playerFacingRight
                 };
             }
             else
             {
-                characterVelocity.X = 0;
-                characterVelocity.Y = 0;
+                playerVelocity.X = 0;
+                playerVelocity.Y = 0;
                 // --> Friction has been disabled for now, to ensure movement feels responsive.
-                //if (characterInputDirection.X == 0)
+                //if (playerInputDirection.X == 0)
                 //{
-                //    characterVelocity.X *= MathF.Pow(characterFriction, deltaTime);
+                //    playerVelocity.X *= MathF.Pow(playerFriction, deltaTime);
                 //}
-                //if (characterInputDirection.Y == 0)
+                //if (playerInputDirection.Y == 0)
                 //{
-                //    characterVelocity.Y *= MathF.Pow(characterFriction, deltaTime);
+                //    playerVelocity.Y *= MathF.Pow(playerFriction, deltaTime);
                 //}
             }
 
             // Ensure that we are not breaking speed limits in any direction
-            if (characterVelocity.LengthSquared() > maxCharacterSpeed * maxCharacterSpeed)
+            if (playerVelocity.LengthSquared() > maxplayerSpeed * maxplayerSpeed)
             {
-                characterVelocity = Vector2.Normalize(characterVelocity) * maxCharacterSpeed;
+                playerVelocity = Vector2.Normalize(playerVelocity) * maxplayerSpeed;
             }
 
             // Compute final movement vector and add it to current position vector
-            characterMovement = characterVelocity * deltaTime;
-            characterPosition += characterMovement;
+            playerMovement = playerVelocity * deltaTime;
+            playerPosition += playerMovement;
 
 
             /* ==========================
@@ -160,57 +160,57 @@ namespace OriginOfLoot
                ========================== */
 
             // In this section, we currently force the screen boundary, but nothing related to in-game walls.
-            int Xmax = _viewportAdapter.VirtualWidth - characterTexture.Width;
-            int Ymax = _viewportAdapter.VirtualHeight - characterTexture.Height;
+            int Xmax = _viewportAdapter.VirtualWidth - playerTexture.Width;
+            int Ymax = _viewportAdapter.VirtualHeight - playerTexture.Height;
 
-            if (characterPosition.X > Xmax)
+            if (playerPosition.X > Xmax)
             {
-                characterPosition.X = Xmax;
+                playerPosition.X = Xmax;
             }
-            else if (characterPosition.X < 0)
+            else if (playerPosition.X < 0)
             {
-                characterPosition.X = 0;
+                playerPosition.X = 0;
             }
 
-            if (characterPosition.Y > Ymax)
+            if (playerPosition.Y > Ymax)
             {
-                characterPosition.Y = Ymax;
+                playerPosition.Y = Ymax;
             }
-            else if (characterPosition.Y < 0)
+            else if (playerPosition.Y < 0)
             {
-                characterPosition.Y = 0;
+                playerPosition.Y = 0;
             }
 
 
             /* ==========================
-                    Character Weapon
+                    player Weapon
                ========================== */
 
             if (kstate.IsKeyDown(Keys.NumPad1))
             {
-                characterWeapon = CharacterWeapon.Hammer;
+                playerWeapon = PlayerWeapon.Hammer;
             }
             if (kstate.IsKeyDown(Keys.NumPad2))
             {
-                characterWeapon = CharacterWeapon.Sword;
+                playerWeapon = PlayerWeapon.Sword;
             }
             if (kstate.IsKeyDown(Keys.NumPad3))
             {
-                characterWeapon = CharacterWeapon.Bow;
+                playerWeapon = PlayerWeapon.Staff;
             }
                 
-            currentWeaponOffset = characterWeapon switch
+            currentWeaponOffset = playerWeapon switch
             {
-                CharacterWeapon.Hammer => hammerOffset,
-                CharacterWeapon.Sword => swordOffset,
-                CharacterWeapon.Bow => bowOffset,
+                PlayerWeapon.Hammer => hammerOffset,
+                PlayerWeapon.Sword => swordOffset,
+                PlayerWeapon.Staff => staffOffset,
                 _ => throw new ArgumentOutOfRangeException()
             };
-            if (!characterFacingRight)
+            if (!playerFacingRight)
             {
                 currentWeaponOffset = new Vector2(-currentWeaponOffset.X, currentWeaponOffset.Y);
             }
-            characterWeaponPosition = characterPosition + currentWeaponOffset;
+            playerWeaponPosition = playerPosition + currentWeaponOffset;
 
 
             base.Update(gameTime);
@@ -224,30 +224,30 @@ namespace OriginOfLoot
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
             _spriteBatch.Draw(mapTexture, new Vector2(0, 0), Color.White);
             _spriteBatch.Draw(
-                texture: characterTexture,
-                position: characterPosition,
+                texture: playerTexture,
+                position: playerPosition,
                 sourceRectangle: default,
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
                 scale: 1f,
-                effects: characterFacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                effects: playerFacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                 layerDepth: 0f
             );
             _spriteBatch.Draw(
-                texture: characterWeapon switch { 
-                    CharacterWeapon.Hammer => hammerTexture,
-                    CharacterWeapon.Sword => swordTexture,
-                    CharacterWeapon.Bow => bowTexture,
+                texture: playerWeapon switch { 
+                    PlayerWeapon.Hammer => hammerTexture,
+                    PlayerWeapon.Sword => swordTexture,
+                    PlayerWeapon.Staff => staffTexture,
                     _ => throw new ArgumentOutOfRangeException()
                 },
-                position: characterWeaponPosition,
+                position: playerWeaponPosition,
                 sourceRectangle: default,
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
                 scale: 1f,
-                effects: characterFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
+                effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: 0f
             );
             _spriteBatch.End();
