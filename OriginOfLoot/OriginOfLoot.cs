@@ -7,6 +7,7 @@ using OriginOfLoot.Enums;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 
 namespace OriginOfLoot
@@ -286,10 +287,24 @@ namespace OriginOfLoot
         // `Draw()` is also called once every frame, right after `Update()`
         protected override void Draw(GameTime gameTime)
         {
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             GraphicsDevice.Clear(Color.Aquamarine);
 
-            _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
-            _spriteBatch.Draw(mapTexture, new Vector2(0, 0), Color.White);
+            _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), 
+                               samplerState: SamplerState.PointClamp,
+                               sortMode: SpriteSortMode.BackToFront);
+            _spriteBatch.Draw(
+                texture: mapTexture,
+                position: default,
+                sourceRectangle: default,
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: default,
+                layerDepth: 1f
+            );
+
             _spriteBatch.Draw(
                 texture: playerTexture,
                 position: playerPosition,
@@ -299,7 +314,7 @@ namespace OriginOfLoot
                 origin: default,
                 scale: 1f,
                 effects: playerFacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                layerDepth: 0f
+                layerDepth: 0.5f
             );
             _spriteBatch.Draw(
                 texture: playerWeapon switch { 
@@ -314,21 +329,24 @@ namespace OriginOfLoot
                 origin: default,
                 scale: 1f,
                 effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
-                layerDepth: 0f
+                layerDepth: 0.49f
             );
             foreach (var projectile in activeStaffProjectiles)
             {
-                _spriteBatch.Draw(
-                texture: staffProjectileTexture,
-                position: projectile.Position,
-                sourceRectangle: default,
-                color: Color.White,
-                rotation: 0f,
-                origin: default,
-                scale: 1f,
-                effects: default,
-                layerDepth: 0f
-            );
+                for (int i = 0; i < 5; i++)
+                {
+                    _spriteBatch.Draw(
+                        texture: staffProjectileTexture,
+                        position: projectile.Position + i * (projectile.Velocity * deltaTime),
+                        sourceRectangle: default,
+                        color: Color.White,
+                        rotation: 0f,
+                        origin: default,
+                        scale: 1f,
+                        effects: default,
+                        layerDepth: 0.48f
+                    );
+                }
             }
             _spriteBatch.End();
 
