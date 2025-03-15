@@ -5,6 +5,7 @@ using MonoGame.Extended.ViewportAdapters;
 using MonoGame.Extended;
 using OriginOfLoot.Enums;
 using System;
+using System.Collections.Generic;
 
 
 namespace OriginOfLoot
@@ -15,12 +16,15 @@ namespace OriginOfLoot
         private OrthographicCamera _camera;
         private SpriteBatch _spriteBatch;
         private BoxingViewportAdapter _viewportAdapter;
-
+        int viewPixelsX;
+        int viewPixelsY;
+        int viewTileWidth;
+        
         Texture2D mapTexture;
         Texture2D playerTexture;
-        Texture2D hammerTexture;
         Texture2D swordTexture;
         Texture2D staffTexture;
+        Texture2D staffProjectileTexture;
         bool playerFacingRight;
         float playerFriction;
         float playerAcceleration;
@@ -30,10 +34,12 @@ namespace OriginOfLoot
         Vector2 playerVelocity;
         Vector2 playerMovement;
         Vector2 playerWeaponPosition;
-        Vector2 hammerOffset;
         Vector2 swordOffset;
         Vector2 staffOffset;
         Vector2 currentWeaponOffset;
+        List<ActiveStaffProjectile> activeStaffProjectiles;
+        float staffProjectileSpeed;
+        Vector2 staffProjectileOffset;
 
         public OriginOfLoot()
         {
@@ -53,17 +59,22 @@ namespace OriginOfLoot
             _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
 
-            _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, 640, 360);
+            viewPixelsX = 640;
+            viewPixelsY = 360;
+            viewTileWidth = 16;
+            _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, viewPixelsX, viewPixelsY);
             _camera = new OrthographicCamera(_viewportAdapter);
 
             playerVelocity = new(0, 0);
             playerAcceleration = 950f;
             playerFriction = 0.0000001f;
             maxplayerSpeed = 180f;
-            hammerOffset = new Vector2(7, 8);
             swordOffset = new Vector2(7, 8);
             staffOffset = new Vector2(7, 8);
-            playerWeapon = PlayerWeapon.Hammer;
+            playerWeapon = PlayerWeapon.Sword;
+            staffProjectileSpeed = 250f;
+            activeStaffProjectiles = new List<ActiveStaffProjectile>();
+            staffProjectileOffset = new Vector2(19, 8);
 
             base.Initialize();
         }
@@ -74,15 +85,16 @@ namespace OriginOfLoot
 
             mapTexture = Content.Load<Texture2D>("ase_prod/map");
             playerTexture = Content.Load<Texture2D>("ase_prod/player");
-            hammerTexture = Content.Load<Texture2D>("ase_prod/hammer");
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
             staffTexture = Content.Load<Texture2D>("ase_prod/staff");
+            staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
         }
 
         // `Update()` is called once every frame.
         protected override void Update(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            MouseState mstate = Mouse.GetState();
             KeyboardState kstate = Keyboard.GetState();
             if (kstate.IsKeyDown(Keys.Escape))
             {
@@ -90,7 +102,7 @@ namespace OriginOfLoot
             }
 
             /* ==========================
-                   player Movement
+                    Player Movement
                ========================== */
 
             Vector2 playerInputDirection = Vector2.Zero;
@@ -155,9 +167,9 @@ namespace OriginOfLoot
             playerPosition += playerMovement;
 
 
-            /* ==========================
-                  Boundary Enforcement
-               ========================== */
+            /* =======================================
+                    Boundary Enforcement: Player
+               ======================================= */
 
             // In this section, we currently force the screen boundary, but nothing related to in-game walls.
             int Xmax = _viewportAdapter.VirtualWidth - playerTexture.Width;
@@ -182,26 +194,21 @@ namespace OriginOfLoot
             }
 
 
-            /* ==========================
-                    player Weapon
-               ========================== */
+            /* =======================================
+                  Player Weapon: Equip and Position
+               ======================================= */
 
             if (kstate.IsKeyDown(Keys.NumPad1))
             {
-                playerWeapon = PlayerWeapon.Hammer;
-            }
-            if (kstate.IsKeyDown(Keys.NumPad2))
-            {
                 playerWeapon = PlayerWeapon.Sword;
             }
-            if (kstate.IsKeyDown(Keys.NumPad3))
+            if (kstate.IsKeyDown(Keys.NumPad2))
             {
                 playerWeapon = PlayerWeapon.Staff;
             }
                 
             currentWeaponOffset = playerWeapon switch
             {
-                PlayerWeapon.Hammer => hammerOffset,
                 PlayerWeapon.Sword => swordOffset,
                 PlayerWeapon.Staff => staffOffset,
                 _ => throw new ArgumentOutOfRangeException()
@@ -211,6 +218,47 @@ namespace OriginOfLoot
                 currentWeaponOffset = new Vector2(-currentWeaponOffset.X, currentWeaponOffset.Y);
             }
             playerWeaponPosition = playerPosition + currentWeaponOffset;
+
+            /* =======================================
+                      Player Weapon: Projectiles
+               ======================================= */
+
+            if (mstate.LeftButton == ButtonState.Pressed) // Create a new projectile
+            {
+                Vector2 pointerPos = _camera.ScreenToWorld(mstate.X, mstate.Y);
+                Vector2 currentProjectileOffset = playerFacingRight ? 
+                    staffProjectileOffset : 
+                    new Vector2(viewTileWidth - staffProjectileTexture.Width - staffProjectileOffset.X, 
+                                staffProjectileOffset.Y);
+
+                var projectilePosition = playerPosition + currentProjectileOffset;
+
+                var projectileDirection = new Vector2(pointerPos.X - projectilePosition.X, 
+                                                      pointerPos.Y - projectilePosition.Y);
+                projectileDirection.Normalize();
+                var projectileVelocity = projectileDirection * staffProjectileSpeed;
+
+                var newProjectile = new ActiveStaffProjectile(projectilePosition, projectileVelocity);
+
+                activeStaffProjectiles.Add(newProjectile);
+            }
+
+            foreach (var projectile in activeStaffProjectiles) // Update position of all projectiles
+            {
+                projectile.Position += projectile.Velocity * deltaTime;
+            }
+
+
+            /* =======================================
+                  Boundary Enforcement: Projectiles
+               ======================================= */
+
+            activeStaffProjectiles.RemoveAll(n =>
+                n.Position.X < 0 || 
+                n.Position.Y < 0 ||
+                n.Position.X > viewPixelsX ||
+                n.Position.Y > viewPixelsY
+            );
 
 
             base.Update(gameTime);
@@ -236,7 +284,6 @@ namespace OriginOfLoot
             );
             _spriteBatch.Draw(
                 texture: playerWeapon switch { 
-                    PlayerWeapon.Hammer => hammerTexture,
                     PlayerWeapon.Sword => swordTexture,
                     PlayerWeapon.Staff => staffTexture,
                     _ => throw new ArgumentOutOfRangeException()
@@ -250,6 +297,20 @@ namespace OriginOfLoot
                 effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: 0f
             );
+            foreach (var projectile in activeStaffProjectiles)
+            {
+                _spriteBatch.Draw(
+                texture: staffProjectileTexture,
+                position: projectile.Position,
+                sourceRectangle: default,
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: default,
+                layerDepth: 0f
+            );
+            }
             _spriteBatch.End();
 
             base.Draw(gameTime);

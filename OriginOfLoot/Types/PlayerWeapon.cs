@@ -2,7 +2,6 @@
 {
     public enum PlayerWeapon
     {
-        Hammer,
         Sword,
         Staff
     }
