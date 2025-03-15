@@ -6,6 +6,7 @@ using MonoGame.Extended;
 using OriginOfLoot.Enums;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 
 
 namespace OriginOfLoot
@@ -40,6 +41,10 @@ namespace OriginOfLoot
         List<ActiveStaffProjectile> activeStaffProjectiles;
         float staffProjectileSpeed;
         Vector2 staffProjectileOffset;
+        float timeAfterWeaponActivation;
+        float staffFireRate;
+        float swordFireRate;
+        float currentPlayerFireRate;
 
         public OriginOfLoot()
         {
@@ -75,6 +80,9 @@ namespace OriginOfLoot
             staffProjectileSpeed = 250f;
             activeStaffProjectiles = new List<ActiveStaffProjectile>();
             staffProjectileOffset = new Vector2(19, 8);
+            staffFireRate = 0.25f;
+            swordFireRate = 0.5f;
+            currentPlayerFireRate = swordFireRate;
 
             base.Initialize();
         }
@@ -201,10 +209,12 @@ namespace OriginOfLoot
             if (kstate.IsKeyDown(Keys.NumPad1))
             {
                 playerWeapon = PlayerWeapon.Sword;
+                currentPlayerFireRate = swordFireRate;
             }
             if (kstate.IsKeyDown(Keys.NumPad2))
             {
                 playerWeapon = PlayerWeapon.Staff;
+                currentPlayerFireRate = staffFireRate;
             }
                 
             currentWeaponOffset = playerWeapon switch
@@ -220,11 +230,13 @@ namespace OriginOfLoot
             playerWeaponPosition = playerPosition + currentWeaponOffset;
 
             /* =======================================
-                      Player Weapon: Projectiles
+                      Player Weapon Activation
                ======================================= */
 
-            if (mstate.LeftButton == ButtonState.Pressed) // Create a new projectile
+            // Create a new projectile
+            if (mstate.LeftButton == ButtonState.Pressed && timeAfterWeaponActivation > currentPlayerFireRate)
             {
+
                 Vector2 pointerPos = _camera.ScreenToWorld(mstate.X, mstate.Y);
                 Vector2 currentProjectileOffset = playerFacingRight ? 
                     staffProjectileOffset : 
@@ -241,12 +253,19 @@ namespace OriginOfLoot
                 var newProjectile = new ActiveStaffProjectile(projectilePosition, projectileVelocity);
 
                 activeStaffProjectiles.Add(newProjectile);
+                timeAfterWeaponActivation = 0;
+            }
+            else
+            {
+                timeAfterWeaponActivation += deltaTime;
             }
 
-            foreach (var projectile in activeStaffProjectiles) // Update position of all projectiles
+            // Update position of all projectiles
+            foreach (var projectile in activeStaffProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
             }
+
 
 
             /* =======================================
