@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
-namespace OriginOfLoot.Enums
+namespace OriginOfLoot.Types
 {
     public class ActiveStaffProjectile
     {

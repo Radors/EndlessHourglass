@@ -1,4 +1,4 @@
-﻿namespace OriginOfLoot.Enums
+﻿namespace OriginOfLoot.Types
 {
     public enum PlayerWeapon
     {

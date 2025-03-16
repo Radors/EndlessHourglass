@@ -3,11 +3,11 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended.ViewportAdapters;
 using MonoGame.Extended;
-using OriginOfLoot.Enums;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using Microsoft.Xna.Framework.Graphics.PackedVector;
+using OriginOfLoot.Types;
 
 
 namespace OriginOfLoot
@@ -27,6 +27,8 @@ namespace OriginOfLoot
         Texture2D swordTexture;
         Texture2D staffTexture;
         Texture2D staffProjectileTexture;
+        Texture2D swordProjectileTexture;
+        Texture2D swordProjectileAnimationTexture;
         bool playerFacingRight;
         float playerFriction;
         float playerAcceleration;
@@ -40,12 +42,17 @@ namespace OriginOfLoot
         Vector2 staffOffset;
         Vector2 currentWeaponOffset;
         List<ActiveStaffProjectile> activeStaffProjectiles;
+        List<ActiveSwordProjectile> activeSwordProjectiles;
         float staffProjectileSpeed;
+        float swordProjectileSpeed;
         Vector2 staffProjectileOffset;
         float timeAfterWeaponActivation;
         float staffFireRate;
         float swordFireRate;
         float currentPlayerFireRate;
+        Vector2 swordAdjacentDrawingOffset;
+        float swordProjectileLifetime;
+        List<Rectangle> swordProjectileAnimationRectangles;
 
         public OriginOfLoot()
         {
@@ -75,15 +82,26 @@ namespace OriginOfLoot
             playerAcceleration = 950f;
             playerFriction = 0.0000001f;
             maxplayerSpeed = 180f;
-            swordOffset = new Vector2(7, 8);
             staffOffset = new Vector2(7, 8);
+            swordOffset = new Vector2(4, 11);
             playerWeapon = PlayerWeapon.Sword;
             staffProjectileSpeed = 250f;
+            swordProjectileSpeed = 350f;
             activeStaffProjectiles = new List<ActiveStaffProjectile>();
+            activeSwordProjectiles = new List<ActiveSwordProjectile>();
             staffProjectileOffset = new Vector2(19, 8);
             staffFireRate = 0.25f;
-            swordFireRate = 0.5f;
+            swordFireRate = 0.30f;
+            swordProjectileLifetime = 0.40f;
             currentPlayerFireRate = swordFireRate;
+            swordAdjacentDrawingOffset = new Vector2(1, 1);
+            swordProjectileAnimationRectangles = new List<Rectangle>();
+            for (int i = 0; i < 13; i++)
+            {
+                swordProjectileAnimationRectangles.Add(
+                    new Rectangle(new Point(i * 16, 0), new Point(16, 16))
+                );
+            }
 
             base.Initialize();
         }
@@ -97,6 +115,7 @@ namespace OriginOfLoot
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
             staffTexture = Content.Load<Texture2D>("ase_prod/staff");
             staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
+            swordProjectileAnimationTexture = Content.Load<Texture2D>("ase_prod/swordAnimation");
         }
 
         // `Update()` is called once every frame.
@@ -104,6 +123,7 @@ namespace OriginOfLoot
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
             MouseState mstate = Mouse.GetState();
+            Vector2 pointerPos = _camera.ScreenToWorld(mstate.X, mstate.Y);
             KeyboardState kstate = Keyboard.GetState();
             if (kstate.IsKeyDown(Keys.Escape))
             {
@@ -142,13 +162,6 @@ namespace OriginOfLoot
                 // --> Acceleration has been disabled for now, to ensure movement feels responsive.
                 // playerVelocity += playerInputDirection * playerAcceleration * deltaTime;
                 playerVelocity = playerInputDirection * maxplayerSpeed;
-
-                playerFacingRight = playerInputDirection.X switch
-                {
-                    > 0 => true,
-                    < 0 => false,
-                    _ => playerFacingRight
-                };
             }
             else
             {
@@ -175,6 +188,15 @@ namespace OriginOfLoot
             playerMovement = playerVelocity * deltaTime;
             playerPosition += playerMovement;
 
+            // Determine player facing direction
+            if (pointerPos.X > playerPosition.X + viewTileWidth / 2)
+            {
+                playerFacingRight = true;
+            }
+            else
+            {
+                playerFacingRight = false;
+            }
 
             /* =======================================
                     Boundary Enforcement: Player
@@ -202,7 +224,6 @@ namespace OriginOfLoot
                 playerPosition.Y = 0;
             }
 
-
             /* =======================================
                   Player Weapon: Equip and Position
                ======================================= */
@@ -217,7 +238,7 @@ namespace OriginOfLoot
                 playerWeapon = PlayerWeapon.Staff;
                 currentPlayerFireRate = staffFireRate;
             }
-                
+            
             currentWeaponOffset = playerWeapon switch
             {
                 PlayerWeapon.Sword => swordOffset,
@@ -234,18 +255,16 @@ namespace OriginOfLoot
                       Player Weapon Activation
                ======================================= */
 
-            // Create a new projectile
-            if (mstate.LeftButton == ButtonState.Pressed && timeAfterWeaponActivation > currentPlayerFireRate)
+            // Activate Staff
+            if (playerWeapon == PlayerWeapon.Staff &&
+                mstate.LeftButton == ButtonState.Pressed && 
+                timeAfterWeaponActivation > currentPlayerFireRate)
             {
-
-                Vector2 pointerPos = _camera.ScreenToWorld(mstate.X, mstate.Y);
                 Vector2 currentProjectileOffset = playerFacingRight ? 
                     staffProjectileOffset : 
                     new Vector2(viewTileWidth - staffProjectileTexture.Width - staffProjectileOffset.X, 
                                 staffProjectileOffset.Y);
-
                 var projectilePosition = playerPosition + currentProjectileOffset;
-
                 var projectileDirection = new Vector2(pointerPos.X - projectilePosition.X, 
                                                       pointerPos.Y - projectilePosition.Y);
                 projectileDirection.Normalize();
@@ -256,22 +275,49 @@ namespace OriginOfLoot
                 activeStaffProjectiles.Add(newProjectile);
                 timeAfterWeaponActivation = 0;
             }
+            // Activate Sword
+            else if (playerWeapon == PlayerWeapon.Sword &&
+                     mstate.LeftButton == ButtonState.Pressed &&
+                     timeAfterWeaponActivation > currentPlayerFireRate)
+            {
+                Vector2 currentProjectileOffset = swordOffset;
+                var projectilePosition = playerPosition + currentProjectileOffset;
+                var projectileDirection = new Vector2(pointerPos.X - projectilePosition.X,
+                                                      pointerPos.Y - projectilePosition.Y);
+                projectileDirection.Normalize();
+                var projectileVelocity = projectileDirection * swordProjectileSpeed;
+
+                var newProjectile = new ActiveSwordProjectile(projectilePosition, projectileVelocity, 0, 0);
+                activeSwordProjectiles.Add(newProjectile);
+                timeAfterWeaponActivation = 0;
+            }
             else
             {
                 timeAfterWeaponActivation += deltaTime;
             }
 
-            // Update position of all projectiles
+            // Update position of Staff projectiles
             foreach (var projectile in activeStaffProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
             }
 
+            // Update position of Sword projectiles, and progress animation
+            foreach (var projectile in activeSwordProjectiles)
+            {
+                projectile.Position += projectile.Velocity * deltaTime;
+                projectile.TimeAlive += deltaTime;
+
+                float timePerFrame = swordProjectileLifetime / swordProjectileAnimationRectangles.Count;
+                projectile.CurrentFrame = Math.Min(
+                    (int)Math.Floor(projectile.TimeAlive / timePerFrame), 
+                    swordProjectileAnimationRectangles.Count - 1);
+            }
 
 
-            /* =======================================
-                  Boundary Enforcement: Projectiles
-               ======================================= */
+            /* =============================
+                     Remove Projectiles
+               ============================= */
 
             activeStaffProjectiles.RemoveAll(n =>
                 n.Position.X < 0 || 
@@ -279,6 +325,11 @@ namespace OriginOfLoot
                 n.Position.X > viewPixelsX ||
                 n.Position.Y > viewPixelsY
             );
+            activeSwordProjectiles.RemoveAll(n =>
+                n.TimeAlive > swordProjectileLifetime
+            );
+
+
 
 
             base.Update(gameTime);
@@ -292,7 +343,8 @@ namespace OriginOfLoot
 
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), 
                                samplerState: SamplerState.PointClamp,
-                               sortMode: SpriteSortMode.BackToFront);
+                               sortMode: SpriteSortMode.BackToFront,
+                               blendState: BlendState.NonPremultiplied);
             _spriteBatch.Draw(
                 texture: mapTexture,
                 position: default,
@@ -333,7 +385,7 @@ namespace OriginOfLoot
             );
             foreach (var projectile in activeStaffProjectiles)
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     _spriteBatch.Draw(
                         texture: staffProjectileTexture,
@@ -347,6 +399,25 @@ namespace OriginOfLoot
                         layerDepth: 0.48f
                     );
                 }
+            }
+            foreach (var projectile in activeSwordProjectiles)
+            {
+
+                // int fadeToBlack = 255 - (int)(170f / swordProjectileLifetime * projectile.TimeAlive);
+                // Color currentColor = new Color(fadeToBlack, fadeToBlack, fadeToBlack, 150);
+                // Color solidifyAtEnd = new Color(255, 255, 255, 200);
+                _spriteBatch.Draw(
+                    texture: swordProjectileAnimationTexture,
+                    position: projectile.Position,
+                    sourceRectangle: swordProjectileAnimationRectangles[projectile.CurrentFrame],
+                    color: Color.White,
+                    rotation: 0f,
+                    origin: default,
+                    scale: 1f,
+                    effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
+                    layerDepth: 0.48f
+                );
+
             }
             _spriteBatch.End();
 
