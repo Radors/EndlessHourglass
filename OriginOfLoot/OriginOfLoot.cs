@@ -5,9 +5,8 @@ using MonoGame.Extended.ViewportAdapters;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using Microsoft.Xna.Framework.Graphics.PackedVector;
 using OriginOfLoot.Types;
+using System.Diagnostics;
 
 
 namespace OriginOfLoot
@@ -27,8 +26,7 @@ namespace OriginOfLoot
         Texture2D swordTexture;
         Texture2D staffTexture;
         Texture2D staffProjectileTexture;
-        Texture2D swordProjectileTexture;
-        Texture2D swordProjectileAnimationTexture;
+        Texture2D swordAnimationTexture;
         bool playerFacingRight;
         float playerFriction;
         float playerAcceleration;
@@ -83,7 +81,7 @@ namespace OriginOfLoot
             playerFriction = 0.0000001f;
             maxplayerSpeed = 180f;
             staffOffset = new Vector2(7, 8);
-            swordOffset = new Vector2(4, 11);
+            swordOffset = new Vector2(12, 19);
             playerWeapon = PlayerWeapon.Sword;
             staffProjectileSpeed = 250f;
             swordProjectileSpeed = 350f;
@@ -112,10 +110,10 @@ namespace OriginOfLoot
 
             mapTexture = Content.Load<Texture2D>("ase_prod/map");
             playerTexture = Content.Load<Texture2D>("ase_prod/player");
-            swordTexture = Content.Load<Texture2D>("ase_prod/sword");
             staffTexture = Content.Load<Texture2D>("ase_prod/staff");
             staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
-            swordProjectileAnimationTexture = Content.Load<Texture2D>("ase_prod/swordAnimation");
+            swordTexture = Content.Load<Texture2D>("ase_prod/sword");
+            swordAnimationTexture = Content.Load<Texture2D>("ase_prod/swordAnimation");
         }
 
         // `Update()` is called once every frame.
@@ -238,17 +236,16 @@ namespace OriginOfLoot
                 playerWeapon = PlayerWeapon.Staff;
                 currentPlayerFireRate = staffFireRate;
             }
-            
-            currentWeaponOffset = playerWeapon switch
+
+            currentWeaponOffset = (playerFacingRight, playerWeapon) switch
             {
-                PlayerWeapon.Sword => swordOffset,
-                PlayerWeapon.Staff => staffOffset,
+                (true, PlayerWeapon.Sword) => swordOffset,
+                (true, PlayerWeapon.Staff) => staffOffset,
+                (false, PlayerWeapon.Sword) => new Vector2(viewTileWidth - swordOffset.X, swordOffset.Y),
+                (false, PlayerWeapon.Staff) => new Vector2(-staffOffset.X, staffOffset.Y),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            if (!playerFacingRight)
-            {
-                currentWeaponOffset = new Vector2(-currentWeaponOffset.X, currentWeaponOffset.Y);
-            }
+
             playerWeaponPosition = playerPosition + currentWeaponOffset;
 
             /* =======================================
@@ -280,8 +277,8 @@ namespace OriginOfLoot
                      mstate.LeftButton == ButtonState.Pressed &&
                      timeAfterWeaponActivation > currentPlayerFireRate)
             {
-                Vector2 currentProjectileOffset = swordOffset;
-                var projectilePosition = playerPosition + currentProjectileOffset;
+                var projectilePosition = playerPosition + currentWeaponOffset;
+
                 var projectileDirection = new Vector2(pointerPos.X - projectilePosition.X,
                                                       pointerPos.Y - projectilePosition.Y);
                 projectileDirection.Normalize();
@@ -378,7 +375,11 @@ namespace OriginOfLoot
                 sourceRectangle: default,
                 color: Color.White,
                 rotation: 0f,
-                origin: default,
+                origin: playerWeapon switch
+                {
+                    PlayerWeapon.Sword => new Vector2(8, 8),
+                    _ => default,
+                },
                 scale: 1f,
                 effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: 0.49f
@@ -407,12 +408,12 @@ namespace OriginOfLoot
                 // Color currentColor = new Color(fadeToBlack, fadeToBlack, fadeToBlack, 150);
                 // Color solidifyAtEnd = new Color(255, 255, 255, 200);
                 _spriteBatch.Draw(
-                    texture: swordProjectileAnimationTexture,
+                    texture: swordAnimationTexture,
                     position: projectile.Position,
                     sourceRectangle: swordProjectileAnimationRectangles[projectile.CurrentFrame],
                     color: Color.White,
                     rotation: 0f,
-                    origin: default,
+                    origin: new Vector2(8, 8),
                     scale: 1f,
                     effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                     layerDepth: 0.48f
