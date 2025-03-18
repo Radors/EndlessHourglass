@@ -6,6 +6,7 @@ namespace OriginOfLoot.Types
     {
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
+        public Rectangle Rectangle { get; set; }
         public float TimeAlive { get; set; }
         public int CurrentFrame { get; set; }
 

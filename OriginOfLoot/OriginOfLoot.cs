@@ -27,6 +27,7 @@ namespace OriginOfLoot
         Texture2D staffTexture;
         Texture2D staffProjectileTexture;
         Texture2D swordAnimationTexture;
+        Texture2D enemyTexture;
         bool playerFacingRight;
         float playerFriction;
         float playerAcceleration;
@@ -51,6 +52,8 @@ namespace OriginOfLoot
         Vector2 swordAdjacentDrawingOffset;
         float swordProjectileLifetime;
         List<Rectangle> swordProjectileAnimationRectangles;
+        float timeToNextEnemySpawn;
+        List<ActiveEnemy> activeEnemies;
 
         public OriginOfLoot()
         {
@@ -100,6 +103,8 @@ namespace OriginOfLoot
                     new Rectangle(new Point(i * 16, 0), new Point(16, 16))
                 );
             }
+            timeToNextEnemySpawn = 0;
+            activeEnemies = new List<ActiveEnemy>();
 
             base.Initialize();
         }
@@ -114,6 +119,7 @@ namespace OriginOfLoot
             staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
             swordAnimationTexture = Content.Load<Texture2D>("ase_prod/swordAnimation");
+            enemyTexture = Content.Load<Texture2D>("ase_prod/enemy");
         }
 
         // `Update()` is called once every frame.
@@ -297,12 +303,25 @@ namespace OriginOfLoot
             foreach (var projectile in activeStaffProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
+                projectile.Rectangle = new Rectangle(
+                            (int)projectile.Position.X,
+                            (int)projectile.Position.Y,
+                            staffProjectileTexture.Width,
+                            staffProjectileTexture.Height
+                        );
             }
 
             // Update position of Sword projectiles, and progress animation
             foreach (var projectile in activeSwordProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
+                projectile.Rectangle = new Rectangle(
+                            (int)projectile.Position.X,
+                            (int)projectile.Position.Y,
+                            swordAnimationTexture.Width,
+                            swordAnimationTexture.Height
+                        );
+
                 projectile.TimeAlive += deltaTime;
 
                 float timePerFrame = swordProjectileLifetime / swordProjectileAnimationRectangles.Count;
@@ -326,7 +345,82 @@ namespace OriginOfLoot
                 n.TimeAlive > swordProjectileLifetime
             );
 
+            /* =============================
+                     Enemy Creation
+               ============================= */
 
+            if (timeToNextEnemySpawn <= 0)
+            {
+                var spawnPosition = new Vector2(0, viewPixelsY / 2);
+                var enemy = new RedEnemy();
+                var direction = new Vector2(1, 0);
+                direction.Normalize();
+                var velocity = direction * enemy.StartingSpeed;
+
+                var activeEnemy = new ActiveEnemy(enemy, spawnPosition, velocity, 0);
+                
+                activeEnemies.Add(activeEnemy);
+                timeToNextEnemySpawn = 1;
+            }
+            else
+            {
+                timeToNextEnemySpawn -= deltaTime;
+            }
+
+            /* =============================
+                     Enemy Movement
+               ============================= */
+
+            foreach (var enemy in activeEnemies)
+            {
+                enemy.Position += enemy.Velocity * deltaTime;
+                enemy.Rectangle = new Rectangle(
+                            (int)enemy.Position.X,
+                            (int)enemy.Position.Y,
+                            enemy.EnemyCategory.Width,
+                            enemy.EnemyCategory.Height
+                        );
+            }
+
+            /* =============================
+                     Enemy Screen Boundary
+               ============================= */
+
+            activeEnemies.RemoveAll(n =>
+                n.Position.X < 0 ||
+                n.Position.Y < 0 ||
+                n.Position.X > viewPixelsX ||
+                n.Position.Y > viewPixelsY
+            );
+
+
+            /* ===================================
+                 Enemy and Projectile Collision
+               =================================== */
+
+
+            var removeIndexes = new List<int>();
+            for (int i = 0; i < activeEnemies.Count; i++)
+            {
+                foreach (var staffProjectile in activeStaffProjectiles)
+                {
+                    if (activeEnemies[i].Rectangle.Intersects(staffProjectile.Rectangle))
+                    {
+                        removeIndexes.Add(i);
+                    }
+                }
+                foreach (var swordProjectile in activeSwordProjectiles)
+                {
+                    if (activeEnemies[i].Rectangle.Intersects(swordProjectile.Rectangle))
+                    {
+                        removeIndexes.Add(i);
+                    }
+                }
+            }
+            foreach (var index in removeIndexes)
+            {
+                activeEnemies.RemoveAt(index);
+            }
 
 
             base.Update(gameTime);
@@ -418,7 +512,20 @@ namespace OriginOfLoot
                     effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                     layerDepth: 0.48f
                 );
-
+            }
+            foreach (var enemy in activeEnemies)
+            {
+                _spriteBatch.Draw(
+                    texture: enemyTexture,
+                    position: enemy.Position,
+                    sourceRectangle: default,
+                    color: Color.White,
+                    rotation: 0f,
+                    origin: default,
+                    scale: 1f,
+                    effects: default,
+                    layerDepth: 0.49f
+                );
             }
             _spriteBatch.End();
 
