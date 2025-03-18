@@ -13,18 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin ase_prod/enemy.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:ase_prod/enemy.png
-
 #begin ase_prod/map.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -48,6 +36,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:ase_prod/player.png
+
+#begin ase_prod/redRanged.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:ase_prod/redRanged.png
 
 #begin ase_prod/staff.png
 /importer:TextureImporter
@@ -85,7 +85,7 @@
 /processorParam:TextureFormat=Color
 /build:ase_prod/sword.png
 
-#begin ase_prod/swordAnimation.png
+#begin ase_prod/swordProjectile.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -95,5 +95,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:ase_prod/swordAnimation.png
+/build:ase_prod/swordProjectile.png
 

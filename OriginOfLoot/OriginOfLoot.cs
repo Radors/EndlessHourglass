@@ -7,7 +7,10 @@ using System;
 using System.Collections.Generic;
 using OriginOfLoot.Types;
 using System.Diagnostics;
-
+using OriginOfLoot.Types.Enemy;
+using OriginOfLoot.Types.Projectile;
+using OriginOfLoot.Types.Weapon;
+using OriginOfLoot.Types.Player;
 
 namespace OriginOfLoot
 {
@@ -20,40 +23,42 @@ namespace OriginOfLoot
         int viewPixelsX;
         int viewPixelsY;
         int viewTileWidth;
-        
+        float timeToNextEnemySpawn;
+
         Texture2D mapTexture;
-        Texture2D playerTexture;
-        Texture2D swordTexture;
-        Texture2D staffTexture;
-        Texture2D staffProjectileTexture;
-        Texture2D swordAnimationTexture;
-        Texture2D enemyTexture;
-        bool playerFacingRight;
-        float playerFriction;
-        float playerAcceleration;
-        float maxplayerSpeed;
-        PlayerWeapon playerWeapon;
+        Texture2D redRangedTexture;
+        List<IActiveEnemy> activeEnemies = new();
+        List<StaffProjectile> staffProjectiles = new();
+        List<SwordProjectile> swordProjectiles = new();
+        List<Rectangle> swordProjectileAnimationRectangles = new();
+
+        IWeapon playerWeapon;
         Vector2 playerPosition;
         Vector2 playerVelocity;
         Vector2 playerMovement;
         Vector2 playerWeaponPosition;
-        Vector2 swordOffset;
-        Vector2 staffOffset;
-        Vector2 currentWeaponOffset;
-        List<ActiveStaffProjectile> activeStaffProjectiles;
-        List<ActiveSwordProjectile> activeSwordProjectiles;
-        float staffProjectileSpeed;
-        float swordProjectileSpeed;
-        Vector2 staffProjectileOffset;
+        bool playerFacingRight;
+        Texture2D playerTexture;
         float timeAfterWeaponActivation;
-        float staffFireRate;
-        float swordFireRate;
         float currentPlayerFireRate;
-        Vector2 swordAdjacentDrawingOffset;
+        float playerSpeed;
+        Vector2 currentWeaponOffset;
+
+        Texture2D staffTexture;
+        Texture2D staffProjectileTexture;
+        Vector2 staffOffset;
+        Vector2 staffProjectileOffset;
+        float staffProjectileSpeed;
+        float staffFireRate;
+
+        Texture2D swordTexture;
+        Texture2D swordProjectileTexture;
+        Vector2 swordOffset;
+        float swordProjectileSpeed;
         float swordProjectileLifetime;
-        List<Rectangle> swordProjectileAnimationRectangles;
-        float timeToNextEnemySpawn;
-        List<ActiveEnemy> activeEnemies;
+        float swordFireRate;
+
+
 
         public OriginOfLoot()
         {
@@ -80,23 +85,17 @@ namespace OriginOfLoot
             _camera = new OrthographicCamera(_viewportAdapter);
 
             playerVelocity = new(0, 0);
-            playerAcceleration = 950f;
-            playerFriction = 0.0000001f;
-            maxplayerSpeed = 180f;
+            playerSpeed = 180f;
             staffOffset = new Vector2(7, 8);
             swordOffset = new Vector2(12, 19);
-            playerWeapon = PlayerWeapon.Sword;
+            playerWeapon = new Staff();
             staffProjectileSpeed = 250f;
             swordProjectileSpeed = 350f;
-            activeStaffProjectiles = new List<ActiveStaffProjectile>();
-            activeSwordProjectiles = new List<ActiveSwordProjectile>();
             staffProjectileOffset = new Vector2(19, 8);
             staffFireRate = 0.25f;
             swordFireRate = 0.30f;
             swordProjectileLifetime = 0.40f;
             currentPlayerFireRate = swordFireRate;
-            swordAdjacentDrawingOffset = new Vector2(1, 1);
-            swordProjectileAnimationRectangles = new List<Rectangle>();
             for (int i = 0; i < 13; i++)
             {
                 swordProjectileAnimationRectangles.Add(
@@ -104,7 +103,6 @@ namespace OriginOfLoot
                 );
             }
             timeToNextEnemySpawn = 0;
-            activeEnemies = new List<ActiveEnemy>();
 
             base.Initialize();
         }
@@ -118,8 +116,8 @@ namespace OriginOfLoot
             staffTexture = Content.Load<Texture2D>("ase_prod/staff");
             staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
-            swordAnimationTexture = Content.Load<Texture2D>("ase_prod/swordAnimation");
-            enemyTexture = Content.Load<Texture2D>("ase_prod/enemy");
+            swordProjectileTexture = Content.Load<Texture2D>("ase_prod/swordProjectile");
+            redRangedTexture = Content.Load<Texture2D>("ase_prod/redRanged");
         }
 
         // `Update()` is called once every frame.
@@ -159,33 +157,20 @@ namespace OriginOfLoot
 
             if (playerInputDirection != Vector2.Zero) // The player inputs keys to actively move
             {
-                // In general, we always normalize the direction vector, into a "Unit vector".
-                // This turns a diagonal (1, -1) into (0.707, -0.707) and length == 1.
                 playerInputDirection.Normalize();
 
-                // --> Acceleration has been disabled for now, to ensure movement feels responsive.
-                // playerVelocity += playerInputDirection * playerAcceleration * deltaTime;
-                playerVelocity = playerInputDirection * maxplayerSpeed;
+                playerVelocity = playerInputDirection * playerSpeed;
             }
             else
             {
                 playerVelocity.X = 0;
                 playerVelocity.Y = 0;
-                // --> Friction has been disabled for now, to ensure movement feels responsive.
-                //if (playerInputDirection.X == 0)
-                //{
-                //    playerVelocity.X *= MathF.Pow(playerFriction, deltaTime);
-                //}
-                //if (playerInputDirection.Y == 0)
-                //{
-                //    playerVelocity.Y *= MathF.Pow(playerFriction, deltaTime);
-                //}
             }
 
             // Ensure that we are not breaking speed limits in any direction
-            if (playerVelocity.LengthSquared() > maxplayerSpeed * maxplayerSpeed)
+            if (playerVelocity.LengthSquared() > playerSpeed * playerSpeed)
             {
-                playerVelocity = Vector2.Normalize(playerVelocity) * maxplayerSpeed;
+                playerVelocity = Vector2.Normalize(playerVelocity) * playerSpeed;
             }
 
             // Compute final movement vector and add it to current position vector
@@ -234,21 +219,21 @@ namespace OriginOfLoot
 
             if (kstate.IsKeyDown(Keys.NumPad1))
             {
-                playerWeapon = PlayerWeapon.Sword;
+                playerWeapon = new Sword();
                 currentPlayerFireRate = swordFireRate;
             }
             if (kstate.IsKeyDown(Keys.NumPad2))
             {
-                playerWeapon = PlayerWeapon.Staff;
+                playerWeapon = new Staff();
                 currentPlayerFireRate = staffFireRate;
             }
 
             currentWeaponOffset = (playerFacingRight, playerWeapon) switch
             {
-                (true, PlayerWeapon.Sword) => swordOffset,
-                (true, PlayerWeapon.Staff) => staffOffset,
-                (false, PlayerWeapon.Sword) => new Vector2(viewTileWidth - swordOffset.X, swordOffset.Y),
-                (false, PlayerWeapon.Staff) => new Vector2(-staffOffset.X, staffOffset.Y),
+                (true, Sword) => swordOffset,
+                (true, Staff) => staffOffset,
+                (false, Sword) => new Vector2(viewTileWidth - swordOffset.X, swordOffset.Y),
+                (false, Staff) => new Vector2(-staffOffset.X, staffOffset.Y),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -259,7 +244,7 @@ namespace OriginOfLoot
                ======================================= */
 
             // Activate Staff
-            if (playerWeapon == PlayerWeapon.Staff &&
+            if (playerWeapon is Staff &&
                 mstate.LeftButton == ButtonState.Pressed && 
                 timeAfterWeaponActivation > currentPlayerFireRate)
             {
@@ -273,13 +258,23 @@ namespace OriginOfLoot
                 projectileDirection.Normalize();
                 var projectileVelocity = projectileDirection * staffProjectileSpeed;
 
-                var newProjectile = new ActiveStaffProjectile(projectilePosition, projectileVelocity);
+                var newProjectile = new StaffProjectile(
+                                            staffProjectileTexture,
+                                            projectilePosition,
+                                            projectileVelocity,
+                                            new Rectangle(
+                                                (int)projectilePosition.X,
+                                                (int)projectilePosition.Y,
+                                                staffProjectileTexture.Width,
+                                                staffProjectileTexture.Height
+                                            )
+                                        );
 
-                activeStaffProjectiles.Add(newProjectile);
+                staffProjectiles.Add(newProjectile);
                 timeAfterWeaponActivation = 0;
             }
             // Activate Sword
-            else if (playerWeapon == PlayerWeapon.Sword &&
+            else if (playerWeapon is Sword &&
                      mstate.LeftButton == ButtonState.Pressed &&
                      timeAfterWeaponActivation > currentPlayerFireRate)
             {
@@ -290,8 +285,21 @@ namespace OriginOfLoot
                 projectileDirection.Normalize();
                 var projectileVelocity = projectileDirection * swordProjectileSpeed;
 
-                var newProjectile = new ActiveSwordProjectile(projectilePosition, projectileVelocity, 0, 0);
-                activeSwordProjectiles.Add(newProjectile);
+                var newProjectile = new SwordProjectile(
+                                           swordProjectileTexture,
+                                           projectilePosition,
+                                           projectileVelocity,
+                                           new Rectangle(
+                                               (int)projectilePosition.X,
+                                               (int)projectilePosition.Y,
+                                               swordProjectileTexture.Width,
+                                               swordProjectileTexture.Height
+                                           ),
+                                           0,
+                                           0
+                                       );
+
+                swordProjectiles.Add(newProjectile);
                 timeAfterWeaponActivation = 0;
             }
             else
@@ -300,7 +308,7 @@ namespace OriginOfLoot
             }
 
             // Update position of Staff projectiles
-            foreach (var projectile in activeStaffProjectiles)
+            foreach (var projectile in staffProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
                 projectile.Rectangle = new Rectangle(
@@ -312,14 +320,14 @@ namespace OriginOfLoot
             }
 
             // Update position of Sword projectiles, and progress animation
-            foreach (var projectile in activeSwordProjectiles)
+            foreach (var projectile in swordProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
                 projectile.Rectangle = new Rectangle(
                             (int)projectile.Position.X,
                             (int)projectile.Position.Y,
-                            swordAnimationTexture.Width,
-                            swordAnimationTexture.Height
+                            swordProjectileTexture.Width,
+                            swordProjectileTexture.Height
                         );
 
                 projectile.TimeAlive += deltaTime;
@@ -335,13 +343,13 @@ namespace OriginOfLoot
                      Remove Projectiles
                ============================= */
 
-            activeStaffProjectiles.RemoveAll(n =>
+            staffProjectiles.RemoveAll(n =>
                 n.Position.X < 0 || 
                 n.Position.Y < 0 ||
                 n.Position.X > viewPixelsX ||
                 n.Position.Y > viewPixelsY
             );
-            activeSwordProjectiles.RemoveAll(n =>
+            swordProjectiles.RemoveAll(n =>
                 n.TimeAlive > swordProjectileLifetime
             );
 
@@ -352,14 +360,22 @@ namespace OriginOfLoot
             if (timeToNextEnemySpawn <= 0)
             {
                 var spawnPosition = new Vector2(0, viewPixelsY / 2);
-                var enemy = new RedEnemy();
                 var direction = new Vector2(1, 0);
                 direction.Normalize();
-                var velocity = direction * enemy.StartingSpeed;
 
-                var activeEnemy = new ActiveEnemy(enemy, spawnPosition, velocity, 0);
-                
-                activeEnemies.Add(activeEnemy);
+                var redRanged = new RedRanged(
+                                    redRangedTexture,
+                                    spawnPosition,
+                                    direction * 50f,
+                                    new Rectangle(
+                                        (int)spawnPosition.X,
+                                        (int)spawnPosition.Y,
+                                        swordProjectileTexture.Width,
+                                        swordProjectileTexture.Height
+                                    )
+                                );
+
+                activeEnemies.Add(redRanged);
                 timeToNextEnemySpawn = 1;
             }
             else
@@ -377,8 +393,8 @@ namespace OriginOfLoot
                 enemy.Rectangle = new Rectangle(
                             (int)enemy.Position.X,
                             (int)enemy.Position.Y,
-                            enemy.EnemyCategory.Width,
-                            enemy.EnemyCategory.Height
+                            enemy.Texture.Width,
+                            enemy.Texture.Height
                         );
             }
 
@@ -402,16 +418,16 @@ namespace OriginOfLoot
             var removeIndexes = new List<int>();
             for (int i = 0; i < activeEnemies.Count; i++)
             {
-                foreach (var staffProjectile in activeStaffProjectiles)
+                foreach (var projectile in staffProjectiles)
                 {
-                    if (activeEnemies[i].Rectangle.Intersects(staffProjectile.Rectangle))
+                    if (activeEnemies[i].Rectangle.Intersects(projectile.Rectangle))
                     {
                         removeIndexes.Add(i);
                     }
                 }
-                foreach (var swordProjectile in activeSwordProjectiles)
+                foreach (var projectile in swordProjectiles)
                 {
-                    if (activeEnemies[i].Rectangle.Intersects(swordProjectile.Rectangle))
+                    if (activeEnemies[i].Rectangle.Intersects(projectile.Rectangle))
                     {
                         removeIndexes.Add(i);
                     }
@@ -461,8 +477,8 @@ namespace OriginOfLoot
             );
             _spriteBatch.Draw(
                 texture: playerWeapon switch { 
-                    PlayerWeapon.Sword => swordTexture,
-                    PlayerWeapon.Staff => staffTexture,
+                    Sword => swordTexture,
+                    Staff => staffTexture,
                     _ => throw new ArgumentOutOfRangeException()
                 },
                 position: playerWeaponPosition,
@@ -471,14 +487,14 @@ namespace OriginOfLoot
                 rotation: 0f,
                 origin: playerWeapon switch
                 {
-                    PlayerWeapon.Sword => new Vector2(8, 8),
+                    Sword => new Vector2(8, 8),
                     _ => default,
                 },
                 scale: 1f,
                 effects: playerFacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: 0.49f
             );
-            foreach (var projectile in activeStaffProjectiles)
+            foreach (var projectile in staffProjectiles)
             {
                 for (int i = 0; i < 3; i++)
                 {
@@ -495,14 +511,14 @@ namespace OriginOfLoot
                     );
                 }
             }
-            foreach (var projectile in activeSwordProjectiles)
+            foreach (var projectile in swordProjectiles)
             {
 
                 // int fadeToBlack = 255 - (int)(170f / swordProjectileLifetime * projectile.TimeAlive);
                 // Color currentColor = new Color(fadeToBlack, fadeToBlack, fadeToBlack, 150);
                 // Color solidifyAtEnd = new Color(255, 255, 255, 200);
                 _spriteBatch.Draw(
-                    texture: swordAnimationTexture,
+                    texture: swordProjectileTexture,
                     position: projectile.Position,
                     sourceRectangle: swordProjectileAnimationRectangles[projectile.CurrentFrame],
                     color: Color.White,
@@ -516,7 +532,7 @@ namespace OriginOfLoot
             foreach (var enemy in activeEnemies)
             {
                 _spriteBatch.Draw(
-                    texture: enemyTexture,
+                    texture: enemy.Texture,
                     position: enemy.Position,
                     sourceRectangle: default,
                     color: Color.White,
