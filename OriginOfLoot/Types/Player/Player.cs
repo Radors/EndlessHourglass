@@ -16,24 +16,26 @@ namespace OriginOfLoot.Types.Player
 
         public Vector2 CurrentWeaponOffset()
         {
-            return (FacingRight, Weapon) switch
+            var vector = (FacingRight, Weapon) switch
             {
                 (true, _) => Weapon.Offset,
-                (false, Sword) => new Vector2(16 - Weapon.Offset.X, Weapon.Offset.Y),
+                (false, Sword) => new Vector2(-Weapon.Offset.X, Weapon.Offset.Y),
                 (false, Staff) => new Vector2(-Weapon.Offset.X, Weapon.Offset.Y),
                 _ => throw new ArgumentOutOfRangeException()
             };
+            return vector;
         }
 
         public Vector2 CurrentProjectileSpawnOffset()
         {
-            if (Weapon is Staff staff)
+            var vector = (FacingRight, Weapon) switch
             {
-                return FacingRight ? 
-                    staff.ProjectileSpawnOffset :
-                    new Vector2(16 - Texture.Width - Weapon.Offset.X, Weapon.Offset.Y);
-            }
-            return new Vector2(0, 0);
+                (_, Sword) => CurrentWeaponOffset(),
+                (true, Staff staff) => staff.ProjectileSpawnOffset,
+                (false, Staff) => new Vector2(16 - Texture.Width - Weapon.Offset.X, Weapon.Offset.Y),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            return vector;
         }
     }
 }

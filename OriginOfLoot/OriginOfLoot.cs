@@ -11,6 +11,7 @@ using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
 using OriginOfLoot.Types.Enemy;
+using System.Linq;
 
 namespace OriginOfLoot
 {
@@ -200,19 +201,24 @@ namespace OriginOfLoot
                 player.Weapon.TimeSinceFired > player.Weapon.FireRate)
             {
                 var position = player.Position + player.CurrentProjectileSpawnOffset();
-                var direction = new Vector2(pointerPos.X - position.X,
-                                            pointerPos.Y - position.Y);
+
+                var direction = new Vector2(0, 0);
 
                 if (player.Weapon is Sword)
                 {
+                    direction = new Vector2(pointerPos.X - (position.X + 8),
+                                            pointerPos.Y - (position.Y + 8));
                     var projectile = new SwordProjectile(swordProjectileTexture, position, direction);
                     swordProjectiles.Add(projectile);
                 }
                 else if (player.Weapon is Staff)
                 {
+                    direction = new Vector2(pointerPos.X - position.X,
+                                            pointerPos.Y - position.Y);
                     var projectile = new StaffProjectile(staffProjectileTexture, position, direction);
                     staffProjectiles.Add(projectile);
                 }
+
                 player.Weapon.TimeSinceFired = 0;  
             }
             else
@@ -307,35 +313,15 @@ namespace OriginOfLoot
                  Enemy and Projectile Collision
                =================================== */
 
-
-            var removeIndexes = new List<int>();
-            for (int i = 0; i < activeEnemies.Count; i++)
-            {
-                foreach (var projectile in staffProjectiles)
-                {
-                    if (activeEnemies[i].Rectangle.Intersects(projectile.Rectangle))
-                    {
-                        removeIndexes.Add(i);
-                    }
-                }
-                foreach (var projectile in swordProjectiles)
-                {
-                    if (activeEnemies[i].Rectangle.Intersects(projectile.Rectangle))
-                    {
-                        removeIndexes.Add(i);
-                    }
-                }
-            }
-            foreach (var index in removeIndexes)
-            {
-                activeEnemies.RemoveAt(index);
-            }
+            activeEnemies.RemoveAll(
+                    enemy => swordProjectiles.Any(proj => proj.Rectangle.Intersects(enemy.Rectangle)) ||
+                             staffProjectiles.Any(proj => proj.Rectangle.Intersects(enemy.Rectangle))
+                          );
 
 
             base.Update(gameTime);
         }
 
-        // `Draw()` is also called once every frame, right after `Update()`
         protected override void Draw(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -378,11 +364,7 @@ namespace OriginOfLoot
                 sourceRectangle: default,
                 color: Color.White,
                 rotation: 0f,
-                origin: player.Weapon switch
-                {
-                    Sword => new Vector2(8, 8),
-                    _ => default,
-                },
+                origin: default,
                 scale: 1f,
                 effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: 0.49f
@@ -406,18 +388,13 @@ namespace OriginOfLoot
             }
             foreach (var projectile in swordProjectiles)
             {
-
-                // int fadeToBlack = 255 - (int)(170f / swordProjectileLifetime * projectile.TimeAlive);
-                // Color currentColor = new Color(fadeToBlack, fadeToBlack, fadeToBlack, 150);
-                // Color solidifyAtEnd = new Color(255, 255, 255, 200);
-                Debug.WriteLine("any at all???");
                 _spriteBatch.Draw(
                     texture: swordProjectileTexture,
                     position: projectile.Position,
                     sourceRectangle: swordProjectileRectangles[projectile.CurrentFrame],
                     color: Color.White,
                     rotation: 0f,
-                    origin: new Vector2(8, 8),
+                    origin: default,
                     scale: 1f,
                     effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                     layerDepth: 0.48f
