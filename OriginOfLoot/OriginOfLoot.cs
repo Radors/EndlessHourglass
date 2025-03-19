@@ -11,7 +11,8 @@ using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Player.PlayerWeapon; 
 using OriginOfLoot.Types.Projectile; 
 using OriginOfLoot.Types.Enemy; 
-using System.Linq; 
+using System.Linq;
+using System.Transactions;
 
 namespace OriginOfLoot
 {
@@ -24,6 +25,7 @@ namespace OriginOfLoot
         int viewPixelsX;
         int viewPixelsY;
         int viewTileStandard;
+        float entityStandardDepth;
         float timeToNextEnemySpawn;
 
         Player player;
@@ -65,6 +67,7 @@ namespace OriginOfLoot
             viewPixelsX = 640;
             viewPixelsY = 360;
             viewTileStandard = 16;
+            entityStandardDepth = 0.5f;
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, viewPixelsX, viewPixelsY);
             _camera = new OrthographicCamera(_viewportAdapter);
 
@@ -338,7 +341,7 @@ namespace OriginOfLoot
 
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), 
                                samplerState: SamplerState.PointClamp,
-                               sortMode: SpriteSortMode.BackToFront,
+                               sortMode: SpriteSortMode.FrontToBack,
                                blendState: BlendState.NonPremultiplied);
             // Map
             _spriteBatch.Draw(
@@ -350,8 +353,9 @@ namespace OriginOfLoot
                 origin: default,
                 scale: 1f,
                 effects: default,
-                layerDepth: 1f
+                layerDepth: 0f
             );
+           
             // Player
             _spriteBatch.Draw(
                 texture: playerTexture,
@@ -362,7 +366,7 @@ namespace OriginOfLoot
                 origin: default,
                 scale: 1f,
                 effects: player.FacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                layerDepth: 0.5f
+                layerDepth: entityStandardDepth + (player.Position.Y / 100000)
             );
             // Player Weapon
             _spriteBatch.Draw(
@@ -378,7 +382,7 @@ namespace OriginOfLoot
                 origin: default,
                 scale: 1f,
                 effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
-                layerDepth: 0.49f
+                layerDepth: entityStandardDepth + (player.Position.Y / 100000) + 0.000001f
             );
             foreach (var projectile in staffProjectiles)
             {
@@ -394,7 +398,7 @@ namespace OriginOfLoot
                         origin: default,
                         scale: 1f,
                         effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
-                        layerDepth: 0.48f
+                        layerDepth: entityStandardDepth + (player.Position.Y / 100000) + 0.000002f
                     );
                 }
             }
@@ -410,7 +414,7 @@ namespace OriginOfLoot
                     origin: default,
                     scale: 1f,
                     effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
-                    layerDepth: 0.48f
+                    layerDepth: entityStandardDepth + (player.Position.Y / 100000) + 0.000002f
                 );
             }
             foreach (var enemy in activeEnemies)
@@ -425,7 +429,7 @@ namespace OriginOfLoot
                     origin: default,
                     scale: 1f,
                     effects: default,
-                    layerDepth: 0.51f
+                    layerDepth: entityStandardDepth + (enemy.Position.Y / 100000)
                 );
                 // Enemy Healthbar
                 _spriteBatch.Draw(
@@ -437,7 +441,7 @@ namespace OriginOfLoot
                     origin: default,
                     scale: 1f,
                     effects: default,
-                    layerDepth: 0.51f
+                    layerDepth: entityStandardDepth + (enemy.Position.Y / 100000)
                 );
             }
             _spriteBatch.End();
