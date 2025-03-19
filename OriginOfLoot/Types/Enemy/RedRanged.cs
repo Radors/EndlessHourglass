@@ -1,5 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OriginOfLoot.StaticMethods;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OriginOfLoot.Types.Enemy
 {
@@ -9,17 +13,26 @@ namespace OriginOfLoot.Types.Enemy
         public Vector2 Position { get; set; }
         public Rectangle Rectangle { get; set; }
         public Vector2 Velocity { get; set; }
-        public int MaxHealth { get; set; } = 200;
-        public int CurrentHealth { get; set; } = 200;
+        public float Speed { get; set; } = 50f;
+        public int MaxHealth { get; set; } = 140;
+        public int CurrentHealth { get; set; } = 140;
+        public Vector2 HealthbarOffset { get; set; } = new Vector2(0, 32);
 
-        public float StartingSpeed { get; set; } = 50f; // Reminder to rethink this later
-
-        public RedRanged(Texture2D texture, Vector2 position, Vector2 velocity, Rectangle rectangle)
+        public RedRanged(Texture2D texture, Vector2 position, Vector2 direction)
         {
             Texture = texture;
             Position = position;
-            Velocity = velocity;
-            Rectangle = rectangle;
+
+            direction.Normalize();
+            Velocity = direction * Speed;
+
+            Rectangle = Geometry.NewRectangle(position, texture);
+        }
+
+        public int HealthbarFrame()
+        {
+            int frame = (int)(CurrentHealth / 10f);
+            return 14 - frame;
         }
     }
 }

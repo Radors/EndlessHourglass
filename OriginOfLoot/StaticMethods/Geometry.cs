@@ -12,14 +12,14 @@ namespace OriginOfLoot.StaticMethods
             return new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
         }
 
-        public static List<Rectangle> SetupAnimationRectangles(Texture2D texture, int viewTileWidth)
+        public static List<Rectangle> SetupAnimationRectangles(Texture2D texture, int width, int height)
         {
             var rectangles = new List<Rectangle>();
-            var frameCount = texture.Width / viewTileWidth;
+            var frameCount = texture.Width / width;
             for (int i = 0; i < frameCount; i++)
             {
                 rectangles.Add(
-                    new Rectangle(new Point(i * viewTileWidth, 0), new Point(viewTileWidth, viewTileWidth))
+                    new Rectangle(new Point(i * width, 0), new Point(width, height))
                 );
             }
             return rectangles;

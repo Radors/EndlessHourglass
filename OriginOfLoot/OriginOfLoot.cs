@@ -23,7 +23,7 @@ namespace OriginOfLoot
         private BoxingViewportAdapter _viewportAdapter;
         int viewPixelsX;
         int viewPixelsY;
-        int viewTileWidth;
+        int viewTileStandard;
         float timeToNextEnemySpawn;
 
         Player player;
@@ -31,6 +31,7 @@ namespace OriginOfLoot
         Texture2D mapTexture;
         Texture2D playerTexture;
         Texture2D redRangedTexture;
+        Texture2D healthbarTexture;
         Texture2D swordTexture;
         Texture2D staffTexture;
         Texture2D swordProjectileTexture;
@@ -40,7 +41,7 @@ namespace OriginOfLoot
         List<StaffProjectile> staffProjectiles = new();
         List<SwordProjectile> swordProjectiles = new();
         List<Rectangle> swordProjectileRectangles = new();
-        int swordProjectileFrames;
+        List<Rectangle> healthbarRectangles = new();
 
 
         public OriginOfLoot()
@@ -63,7 +64,7 @@ namespace OriginOfLoot
 
             viewPixelsX = 640;
             viewPixelsY = 360;
-            viewTileWidth = 16;
+            viewTileStandard = 16;
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, viewPixelsX, viewPixelsY);
             _camera = new OrthographicCamera(_viewportAdapter);
 
@@ -85,8 +86,10 @@ namespace OriginOfLoot
             swordProjectileTexture = Content.Load<Texture2D>("ase_prod/swordProjectile");
             staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
             redRangedTexture = Content.Load<Texture2D>("ase_prod/redRanged");
+            healthbarTexture = Content.Load<Texture2D>("ase_prod/healthbar");
 
-            swordProjectileRectangles = Geometry.SetupAnimationRectangles(swordProjectileTexture, viewTileWidth);
+            swordProjectileRectangles = Geometry.SetupAnimationRectangles(swordProjectileTexture, viewTileStandard, viewTileStandard);
+            healthbarRectangles = Geometry.SetupAnimationRectangles(healthbarTexture, viewTileStandard, 4);
         }
 
         // `Update()` is called once every frame.
@@ -140,7 +143,7 @@ namespace OriginOfLoot
             player.Position += player.Velocity * deltaTime;
 
             // Determine player facing direction
-            if (pointerPos.X > player.Position.X + viewTileWidth / 2)
+            if (pointerPos.X > player.Position.X + viewTileStandard / 2)
             {
                 player.FacingRight = true;
             }
@@ -259,15 +262,10 @@ namespace OriginOfLoot
 
             if (timeToNextEnemySpawn <= 0)
             {
-                var spawnPosition = new Vector2(0, viewPixelsY / 2);
-                var direction = new Vector2(1, 0);
-                direction.Normalize();
-
                 var redRanged = new RedRanged(
                                     redRangedTexture,
-                                    spawnPosition,
-                                    direction * 50f,
-                                    Geometry.NewRectangle(spawnPosition, redRangedTexture)
+                                    new Vector2(0, viewPixelsY / 2),
+                                    new Vector2(1, 0)
                                 );
 
                 activeEnemies.Add(redRanged);
@@ -342,6 +340,7 @@ namespace OriginOfLoot
                                samplerState: SamplerState.PointClamp,
                                sortMode: SpriteSortMode.BackToFront,
                                blendState: BlendState.NonPremultiplied);
+            // Map
             _spriteBatch.Draw(
                 texture: mapTexture,
                 position: default,
@@ -353,7 +352,7 @@ namespace OriginOfLoot
                 effects: default,
                 layerDepth: 1f
             );
-
+            // Player
             _spriteBatch.Draw(
                 texture: playerTexture,
                 position: player.Position,
@@ -365,6 +364,7 @@ namespace OriginOfLoot
                 effects: player.FacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                 layerDepth: 0.5f
             );
+            // Player Weapon
             _spriteBatch.Draw(
                 texture: player.Weapon switch { 
                     Sword => swordTexture,
@@ -384,6 +384,7 @@ namespace OriginOfLoot
             {
                 for (int i = 0; i < 3; i++)
                 {
+                    // Staff Projectile
                     _spriteBatch.Draw(
                         texture: staffProjectileTexture,
                         position: projectile.Position + i * (projectile.Velocity * deltaTime),
@@ -399,6 +400,7 @@ namespace OriginOfLoot
             }
             foreach (var projectile in swordProjectiles)
             {
+                // Sword Projectile
                 _spriteBatch.Draw(
                     texture: swordProjectileTexture,
                     position: projectile.Position,
@@ -413,10 +415,23 @@ namespace OriginOfLoot
             }
             foreach (var enemy in activeEnemies)
             {
+                // Enemy
                 _spriteBatch.Draw(
                     texture: enemy.Texture,
                     position: enemy.Position,
                     sourceRectangle: default,
+                    color: Color.White,
+                    rotation: 0f,
+                    origin: default,
+                    scale: 1f,
+                    effects: default,
+                    layerDepth: 0.51f
+                );
+                // Enemy Healthbar
+                _spriteBatch.Draw(
+                    texture: healthbarTexture,
+                    position: enemy.Position + enemy.HealthbarOffset,
+                    sourceRectangle: healthbarRectangles[enemy.HealthbarFrame()],
                     color: Color.White,
                     rotation: 0f,
                     origin: default,
