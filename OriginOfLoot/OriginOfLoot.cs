@@ -34,15 +34,15 @@ namespace OriginOfLoot
         Texture2D playerTexture;
         Texture2D redRangedTexture;
         Texture2D healthbarTexture;
-        Texture2D swordTexture;
+        Texture2D rotatorTexture;
         Texture2D staffTexture;
-        Texture2D swordProjectileTexture;
+        Texture2D rotatorProjectileTexture;
         Texture2D staffProjectileTexture;
 
         List<IActiveEnemy> activeEnemies = new();
         List<StaffProjectile> staffProjectiles = new();
-        List<SwordProjectile> swordProjectiles = new();
-        List<Rectangle> swordProjectileRectangles = new();
+        List<RotatorProjectile> rotatorProjectiles = new();
+        List<Rectangle> rotatorProjectileRectangles = new();
         List<Rectangle> healthbarRectangles = new();
 
 
@@ -84,14 +84,14 @@ namespace OriginOfLoot
 
             mapTexture = Content.Load<Texture2D>("ase_prod/map");
             playerTexture = Content.Load<Texture2D>("ase_prod/player");
-            swordTexture = Content.Load<Texture2D>("ase_prod/sword");
+            rotatorTexture = Content.Load<Texture2D>("ase_prod/rotator");
             staffTexture = Content.Load<Texture2D>("ase_prod/staff");
-            swordProjectileTexture = Content.Load<Texture2D>("ase_prod/swordProjectile");
+            rotatorProjectileTexture = Content.Load<Texture2D>("ase_prod/rotatorProjectile");
             staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
             redRangedTexture = Content.Load<Texture2D>("ase_prod/redRanged");
             healthbarTexture = Content.Load<Texture2D>("ase_prod/healthbar");
 
-            swordProjectileRectangles = Geometry.SetupAnimationRectangles(swordProjectileTexture, viewTileStandard, viewTileStandard);
+            rotatorProjectileRectangles = Geometry.SetupAnimationRectangles(rotatorProjectileTexture, viewTileStandard, viewTileStandard);
             healthbarRectangles = Geometry.SetupAnimationRectangles(healthbarTexture, viewTileStandard, 4);
         }
 
@@ -186,7 +186,7 @@ namespace OriginOfLoot
 
             if (kstate.IsKeyDown(Keys.NumPad1))
             {
-                player.Weapon = new Sword();
+                player.Weapon = new Rotator();
             }
             if (kstate.IsKeyDown(Keys.NumPad2))
             {
@@ -205,10 +205,10 @@ namespace OriginOfLoot
                 var direction = new Vector2(pointerPos.X - (position.X + player.ProjectileDirectionOffset().X),
                                             pointerPos.Y - (position.Y + player.ProjectileDirectionOffset().Y));
 
-                if (player.Weapon is Sword)
+                if (player.Weapon is Rotator)
                 {
-                    var projectile = new SwordProjectile(swordProjectileTexture, position, direction);
-                    swordProjectiles.Add(projectile);
+                    var projectile = new RotatorProjectile(rotatorProjectileTexture, position, direction);
+                    rotatorProjectiles.Add(projectile);
                 }
                 else if (player.Weapon is Staff)
                 {
@@ -230,18 +230,13 @@ namespace OriginOfLoot
                 projectile.Rectangle = Geometry.NewRectangle(projectile.Position, projectile.Texture);
             }
 
-            // Update position of Sword projectiles, and progress animation
-            foreach (var projectile in swordProjectiles)
+            // Update position of Rotator projectiles, and update frame
+            foreach (var projectile in rotatorProjectiles)
             {
                 projectile.Position += projectile.Velocity * deltaTime;
                 projectile.Rectangle = Geometry.NewRectangle(projectile.Position, projectile.Texture);
 
-                projectile.TimeAlive += deltaTime;
-
-                float timePerFrame = projectile.Lifetime / swordProjectileRectangles.Count;
-                projectile.CurrentFrame = Math.Min(
-                    (int)Math.Floor(projectile.TimeAlive / timePerFrame),
-                    swordProjectileRectangles.Count - 1);
+                projectile.UpdateFrame(deltaTime);
             }
 
 
@@ -255,8 +250,11 @@ namespace OriginOfLoot
                 n.Position.X > viewPixelsX ||
                 n.Position.Y > viewPixelsY
             );
-            swordProjectiles.RemoveAll(n =>
-                n.TimeAlive > n.Lifetime
+            rotatorProjectiles.RemoveAll(n =>
+                n.Position.X < 0 ||
+                n.Position.Y < 0 ||
+                n.Position.X > viewPixelsX ||
+                n.Position.Y > viewPixelsY
             );
 
             /* =============================
@@ -307,29 +305,29 @@ namespace OriginOfLoot
 
             foreach (var enemy in activeEnemies)
             {
-                // Sword
-                foreach (var swordProjectile in swordProjectiles)
+                // Rotator
+                foreach (var projectile in rotatorProjectiles)
                 {
-                    if (swordProjectile.Rectangle.Intersects(enemy.Rectangle))
+                    if (!projectile.EnemiesHit.Contains(enemy) &&
+                        projectile.Rectangle.Intersects(enemy.Rectangle))
                     {
-                        enemy.CurrentHealth -= new Sword().Damage;
-                        swordProjectile.RemainingHits -= 1;
+                        enemy.CurrentHealth -= new Rotator().Damage;
+                        projectile.EnemiesHit.Add(enemy);
                     }
                 }
                 // Staff
-                foreach (var staffProjectile in staffProjectiles)
+                foreach (var projectile in staffProjectiles)
                 {
-                    if (staffProjectile.Rectangle.Intersects(enemy.Rectangle))
+                    if (!projectile.EnemiesHit.Contains(enemy) &&
+                        projectile.Rectangle.Intersects(enemy.Rectangle))
                     {
                         enemy.CurrentHealth -= new Staff().Damage;
-                        staffProjectile.RemainingHits -= 1;
+                        projectile.EnemiesHit.Add(enemy);
                     }
                 }
             }
-
             activeEnemies.RemoveAll(n => n.CurrentHealth <= 0);
-            swordProjectiles.RemoveAll(n => n.RemainingHits <= 0);
-            staffProjectiles.RemoveAll(n => n.RemainingHits <= 0);
+
 
             base.Update(gameTime);
         }
@@ -370,8 +368,8 @@ namespace OriginOfLoot
             );
             // Player Weapon
             _spriteBatch.Draw(
-                texture: player.Weapon switch { 
-                    Sword => swordTexture,
+                texture: player.Weapon switch {
+                    Rotator => rotatorTexture,
                     Staff => staffTexture,
                     _ => throw new ArgumentOutOfRangeException()
                 },
@@ -402,13 +400,13 @@ namespace OriginOfLoot
                     );
                 }
             }
-            foreach (var projectile in swordProjectiles)
+            foreach (var projectile in rotatorProjectiles)
             {
-                // Sword Projectile
+                // Rotator Projectile
                 _spriteBatch.Draw(
-                    texture: swordProjectileTexture,
+                    texture: rotatorProjectileTexture,
                     position: projectile.Position,
-                    sourceRectangle: swordProjectileRectangles[projectile.CurrentFrame],
+                    sourceRectangle: rotatorProjectileRectangles[projectile.CurrentFrame],
                     color: Color.White,
                     rotation: 0f,
                     origin: default,

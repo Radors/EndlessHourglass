@@ -9,7 +9,7 @@ namespace OriginOfLoot.Types.Player
     {
         public Vector2 Position { get; set; } = new Vector2(0, 0);
         public Vector2 Velocity { get; set; } = new Vector2(0, 0);
-        public IPlayerWeapon Weapon { get; set; } = new Sword();
+        public IPlayerWeapon Weapon { get; set; } = new Rotator();
         public bool FacingRight { get; set; } = true;
         public float Speed { get; set; } = 180f;
         public int MaxHealth { get; set; } = 140;

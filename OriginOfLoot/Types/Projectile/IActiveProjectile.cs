@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OriginOfLoot.Types.Enemy;
+using System.Collections.Generic;
 
 namespace OriginOfLoot.Types.Projectile
 {
@@ -9,6 +11,7 @@ namespace OriginOfLoot.Types.Projectile
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public Rectangle Rectangle { get; set; }
-        public int RemainingHits { get; set; }
+        public List<IActiveEnemy> EnemiesHit { get; set; }
+        public float Speed { get; set; }
     }
 }

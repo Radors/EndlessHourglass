@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace OriginOfLoot.Types.Player.PlayerWeapon
 {
-    public class Sword : IPlayerWeapon
+    public class Rotator : IPlayerWeapon
     {
         public Vector2 BaseOffset { get; set; } = new Vector2(4, 11);
         public Vector2 BaseOffsetProjectile { get; set; } = new Vector2(4, 11);
