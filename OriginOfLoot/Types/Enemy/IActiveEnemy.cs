@@ -9,5 +9,7 @@ namespace OriginOfLoot.Types.Enemy
         public Vector2 Position { get; set; }
         public Rectangle Rectangle { get; set; }
         public Vector2 Velocity { get; set; }
+        public int MaxHealth { get; set; }
+        public int CurrentHealth { get; set; }
     }
 }

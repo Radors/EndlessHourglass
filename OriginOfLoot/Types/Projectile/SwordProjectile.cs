@@ -11,6 +11,7 @@ namespace OriginOfLoot.Types.Projectile
         public Vector2 Velocity { get; set; }
         public Rectangle Rectangle { get; set; }
         public float Speed { get; set; } = 350f;
+        public int RemainingHits { get; set; } = 1;
         public int CurrentFrame { get; set; } = 0;
         public float Lifetime { get; set; } = 0.40f;
         public float TimeAlive { get; set; } = 0;

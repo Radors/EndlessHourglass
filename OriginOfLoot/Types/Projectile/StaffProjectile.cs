@@ -11,6 +11,7 @@ namespace OriginOfLoot.Types.Projectile
         public Vector2 Velocity { get; set; }
         public Rectangle Rectangle { get; set; }
         public float Speed { get; set; } = 250f;
+        public int RemainingHits { get; set; } = 1;
 
         public StaffProjectile(Texture2D texture, Vector2 position, Vector2 direction)
         {

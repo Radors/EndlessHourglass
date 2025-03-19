@@ -7,11 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using OriginOfLoot.StaticMethods; 
-using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Player.PlayerWeapon;
-using OriginOfLoot.Types.Projectile;
-using OriginOfLoot.Types.Enemy;
-using System.Linq;
+using OriginOfLoot.Types.Player; 
+using OriginOfLoot.Types.Player.PlayerWeapon; 
+using OriginOfLoot.Types.Projectile; 
+using OriginOfLoot.Types.Enemy; 
+using System.Linq; 
 
 namespace OriginOfLoot
 {
@@ -304,11 +304,31 @@ namespace OriginOfLoot
                  Enemy and Projectile Collision
                =================================== */
 
-            activeEnemies.RemoveAll(
-                    enemy => swordProjectiles.Any(proj => proj.Rectangle.Intersects(enemy.Rectangle)) ||
-                             staffProjectiles.Any(proj => proj.Rectangle.Intersects(enemy.Rectangle))
-                          );
+            foreach (var enemy in activeEnemies)
+            {
+                // Sword
+                foreach (var swordProjectile in swordProjectiles)
+                {
+                    if (swordProjectile.Rectangle.Intersects(enemy.Rectangle))
+                    {
+                        enemy.CurrentHealth -= new Sword().Damage;
+                        swordProjectile.RemainingHits -= 1;
+                    }
+                }
+                // Staff
+                foreach (var staffProjectile in staffProjectiles)
+                {
+                    if (staffProjectile.Rectangle.Intersects(enemy.Rectangle))
+                    {
+                        enemy.CurrentHealth -= new Staff().Damage;
+                        staffProjectile.RemainingHits -= 1;
+                    }
+                }
+            }
 
+            activeEnemies.RemoveAll(n => n.CurrentHealth <= 0);
+            swordProjectiles.RemoveAll(n => n.RemainingHits <= 0);
+            staffProjectiles.RemoveAll(n => n.RemainingHits <= 0);
 
             base.Update(gameTime);
         }
@@ -402,7 +422,7 @@ namespace OriginOfLoot
                     origin: default,
                     scale: 1f,
                     effects: default,
-                    layerDepth: 0.49f
+                    layerDepth: 0.51f
                 );
             }
             _spriteBatch.End();

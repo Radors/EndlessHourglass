@@ -12,6 +12,8 @@ namespace OriginOfLoot.Types.Player
         public IPlayerWeapon Weapon { get; set; } = new Sword();
         public bool FacingRight { get; set; } = true;
         public float Speed { get; set; } = 180f;
+        public int MaxHealth { get; set; } = 200;
+        public int CurrentHealth { get; set; } = 200;
 
         public Vector2 WeaponOffset()
         {
