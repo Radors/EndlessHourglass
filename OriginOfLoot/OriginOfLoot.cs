@@ -6,7 +6,7 @@ using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using OriginOfLoot.Methods;
+using OriginOfLoot.StaticMethods; 
 using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
@@ -27,14 +27,15 @@ namespace OriginOfLoot
         float timeToNextEnemySpawn;
 
         Player player;
-        Texture2D mapTexture;
-        Texture2D playerSpawnTexture;
-        Texture2D redRangedTexture;
 
+        Texture2D mapTexture;
+        Texture2D playerTexture;
+        Texture2D redRangedTexture;
         Texture2D swordTexture;
         Texture2D staffTexture;
         Texture2D swordProjectileTexture;
         Texture2D staffProjectileTexture;
+
         List<IActiveEnemy> activeEnemies = new();
         List<StaffProjectile> staffProjectiles = new();
         List<SwordProjectile> swordProjectiles = new();
@@ -68,13 +69,6 @@ namespace OriginOfLoot
 
             player = new Player();
 
-            swordProjectileFrames = 13;
-            for (int i = 0; i < swordProjectileFrames; i++)
-            {
-                swordProjectileRectangles.Add(
-                    new Rectangle(new Point(i * 16, 0), new Point(16, 16))
-                );
-            }
             timeToNextEnemySpawn = 0;
 
             base.Initialize();
@@ -85,14 +79,14 @@ namespace OriginOfLoot
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             mapTexture = Content.Load<Texture2D>("ase_prod/map");
-            playerSpawnTexture = Content.Load<Texture2D>("ase_prod/player");
-            staffTexture = Content.Load<Texture2D>("ase_prod/staff");
-            staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
+            playerTexture = Content.Load<Texture2D>("ase_prod/player");
             swordTexture = Content.Load<Texture2D>("ase_prod/sword");
+            staffTexture = Content.Load<Texture2D>("ase_prod/staff");
             swordProjectileTexture = Content.Load<Texture2D>("ase_prod/swordProjectile");
+            staffProjectileTexture = Content.Load<Texture2D>("ase_prod/staffProjectile");
             redRangedTexture = Content.Load<Texture2D>("ase_prod/redRanged");
 
-            player.Texture = playerSpawnTexture;
+            swordProjectileRectangles = Geometry.SetupAnimationRectangles(swordProjectileTexture, viewTileWidth);
         }
 
         // `Update()` is called once every frame.
@@ -160,8 +154,8 @@ namespace OriginOfLoot
                ======================================= */
 
             // In this section, we currently force the screen boundary, but nothing related to in-game walls.
-            int Xmax = _viewportAdapter.VirtualWidth - player.Texture.Width;
-            int Ymax = _viewportAdapter.VirtualHeight - player.Texture.Height;
+            int Xmax = _viewportAdapter.VirtualWidth - playerTexture.Width;
+            int Ymax = _viewportAdapter.VirtualHeight - playerTexture.Height;
 
             if (player.Position.X > Xmax)
             {
@@ -200,21 +194,18 @@ namespace OriginOfLoot
             if (mstate.LeftButton == ButtonState.Pressed &&
                 player.Weapon.TimeSinceFired > player.Weapon.FireRate)
             {
-                var position = player.Position + player.CurrentProjectileSpawnOffset();
+                var position = player.Position + player.ProjectileOffset();
 
-                var direction = new Vector2(0, 0);
+                var direction = new Vector2(pointerPos.X - (position.X + player.ProjectileDirectionOffset().X),
+                                            pointerPos.Y - (position.Y + player.ProjectileDirectionOffset().Y));
 
                 if (player.Weapon is Sword)
                 {
-                    direction = new Vector2(pointerPos.X - (position.X + 8),
-                                            pointerPos.Y - (position.Y + 8));
                     var projectile = new SwordProjectile(swordProjectileTexture, position, direction);
                     swordProjectiles.Add(projectile);
                 }
                 else if (player.Weapon is Staff)
                 {
-                    direction = new Vector2(pointerPos.X - position.X,
-                                            pointerPos.Y - position.Y);
                     var projectile = new StaffProjectile(staffProjectileTexture, position, direction);
                     staffProjectiles.Add(projectile);
                 }
@@ -344,7 +335,7 @@ namespace OriginOfLoot
             );
 
             _spriteBatch.Draw(
-                texture: player.Texture,
+                texture: playerTexture,
                 position: player.Position,
                 sourceRectangle: default,
                 color: Color.White,
@@ -360,7 +351,7 @@ namespace OriginOfLoot
                     Staff => staffTexture,
                     _ => throw new ArgumentOutOfRangeException()
                 },
-                position: player.Position + player.CurrentWeaponOffset(),
+                position: player.Position + player.WeaponOffset(),
                 sourceRectangle: default,
                 color: Color.White,
                 rotation: 0f,
@@ -381,7 +372,7 @@ namespace OriginOfLoot
                         rotation: 0f,
                         origin: default,
                         scale: 1f,
-                        effects: default,
+                        effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                         layerDepth: 0.48f
                     );
                 }

@@ -7,35 +7,28 @@ namespace OriginOfLoot.Types.Player
 {
     public class Player
     {
-        public Texture2D Texture { get; set; }
         public Vector2 Position { get; set; } = new Vector2(0, 0);
         public Vector2 Velocity { get; set; } = new Vector2(0, 0);
         public IPlayerWeapon Weapon { get; set; } = new Sword();
         public bool FacingRight { get; set; } = true;
         public float Speed { get; set; } = 180f;
 
-        public Vector2 CurrentWeaponOffset()
+        public Vector2 WeaponOffset()
         {
-            var vector = (FacingRight, Weapon) switch
-            {
-                (true, _) => Weapon.Offset,
-                (false, Sword) => new Vector2(-Weapon.Offset.X, Weapon.Offset.Y),
-                (false, Staff) => new Vector2(-Weapon.Offset.X, Weapon.Offset.Y),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            return vector;
+            return FacingRight ?
+                   Weapon.BaseOffset :
+                   new Vector2(-Weapon.BaseOffset.X, Weapon.BaseOffset.Y);
         }
-
-        public Vector2 CurrentProjectileSpawnOffset()
+        public Vector2 ProjectileOffset()
         {
-            var vector = (FacingRight, Weapon) switch
-            {
-                (_, Sword) => CurrentWeaponOffset(),
-                (true, Staff staff) => staff.ProjectileSpawnOffset,
-                (false, Staff) => new Vector2(16 - Texture.Width - Weapon.Offset.X, Weapon.Offset.Y),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            return vector;
+            return FacingRight ?
+                   Weapon.BaseOffsetProjectile :
+                   new Vector2(-Weapon.BaseOffsetProjectile.X + Weapon.LeftProjectileAdjustment.X, 
+                                Weapon.BaseOffsetProjectile.Y + Weapon.LeftProjectileAdjustment.Y);
+        }
+        public Vector2 ProjectileDirectionOffset()
+        {
+            return Weapon.ProjectileDirectionOffset;
         }
     }
 }

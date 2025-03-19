@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using OriginOfLoot.Methods;
+using OriginOfLoot.StaticMethods;
 
 namespace OriginOfLoot.Types.Projectile
 {
