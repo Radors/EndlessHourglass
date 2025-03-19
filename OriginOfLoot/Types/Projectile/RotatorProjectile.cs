@@ -36,14 +36,11 @@ namespace OriginOfLoot.Types.Projectile
         {
             if (CurrentFrameTime > TimePerFrame)
             {
-                Debug.WriteLine("first path");
                 CurrentFrame = (CurrentFrame < TotalFrames - 1) ? CurrentFrame + 1 : 0;
                 CurrentFrameTime = 0;
-                Debug.WriteLine("frame:" + CurrentFrame);
             }
             else
             {
-                Debug.WriteLine("second path");
                 CurrentFrameTime += deltaTime;
             }
         }

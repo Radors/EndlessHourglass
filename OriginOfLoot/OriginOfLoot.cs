@@ -45,7 +45,6 @@ namespace OriginOfLoot
         List<Rectangle> rotatorProjectileRectangles = new();
         List<Rectangle> healthbarRectangles = new();
 
-
         public OriginOfLoot()
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -56,13 +55,12 @@ namespace OriginOfLoot
         protected override void Initialize()
         {
             Window.AllowUserResizing = false;
-            //_graphics.PreferredBackBufferWidth = 1280;
-            //_graphics.PreferredBackBufferHeight = 720;
-            //_graphics.IsFullScreen = false;
-            _graphics.PreferredBackBufferWidth = 1920;
-            _graphics.PreferredBackBufferHeight = 1080;
+            DisplayMode displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
+            _graphics.PreferredBackBufferWidth = displayMode.Width;
+            _graphics.PreferredBackBufferHeight = displayMode.Height;
             _graphics.IsFullScreen = true;
             _graphics.ApplyChanges();
+            IsFixedTimeStep = false;
 
             viewPixelsX = 640;
             viewPixelsY = 360;
@@ -70,7 +68,7 @@ namespace OriginOfLoot
             entityStandardDepth = 0.5f;
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, viewPixelsX, viewPixelsY);
             _camera = new OrthographicCamera(_viewportAdapter);
-
+           
             player = new Player();
 
             timeToNextEnemySpawn = 0;
@@ -95,7 +93,6 @@ namespace OriginOfLoot
             healthbarRectangles = Geometry.SetupAnimationRectangles(healthbarTexture, viewTileStandard, 4);
         }
 
-        // `Update()` is called once every frame.
         protected override void Update(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -107,12 +104,10 @@ namespace OriginOfLoot
                 Exit();
             }
 
-            /* ==========================
-                    Player Movement
-               ========================== */
+            /*----------------- Player -----------------*/
 
+            // Player input
             Vector2 playerInputDirection = Vector2.Zero;
-
             if (kstate.IsKeyDown(Keys.Right) || kstate.IsKeyDown(Keys.D))
             {
                 playerInputDirection.X += 1;
@@ -130,8 +125,8 @@ namespace OriginOfLoot
                 playerInputDirection.Y += 1;
             }
 
-
-            if (playerInputDirection != Vector2.Zero) // The player inputs keys to actively move
+            // Player velocity
+            if (playerInputDirection != Vector2.Zero)
             {
                 playerInputDirection.Normalize();
 
@@ -142,10 +137,10 @@ namespace OriginOfLoot
                 player.Velocity = new Vector2(0, 0);
             }
 
-            // Update position
+            // Player position
             player.Position += player.Velocity * deltaTime;
 
-            // Determine player facing direction
+            // Player facing
             if (pointerPos.X > player.Position.X + viewTileStandard / 2)
             {
                 player.FacingRight = true;
@@ -155,11 +150,7 @@ namespace OriginOfLoot
                 player.FacingRight = false;
             }
 
-            /* =======================================
-                    Boundary Enforcement: Player
-               ======================================= */
-
-            // In this section, we currently force the screen boundary, but nothing related to in-game walls.
+            // Player screen boundary
             int Xmax = _viewportAdapter.VirtualWidth - playerTexture.Width;
             int Ymax = _viewportAdapter.VirtualHeight - playerTexture.Height;
 
@@ -180,10 +171,9 @@ namespace OriginOfLoot
                 player.Position = new Vector2(player.Position.X, 0);
             }
 
-            /* =======================================
-                  Player Weapon: Equip and Position
-               ======================================= */
+            /*----------------- Weapon and Projectiles -----------------*/
 
+            // Equip weapon
             if (kstate.IsKeyDown(Keys.NumPad1))
             {
                 player.Weapon = new Rotator();
@@ -193,10 +183,7 @@ namespace OriginOfLoot
                 player.Weapon = new Staff();
             }
 
-            /* =======================================
-                      Player Weapon Activation
-               ======================================= */
-
+            // Activate weapon
             if (mstate.LeftButton == ButtonState.Pressed &&
                 player.Weapon.TimeSinceFired > player.Weapon.FireRate)
             {
@@ -239,13 +226,9 @@ namespace OriginOfLoot
                 projectile.UpdateFrame(deltaTime);
             }
 
-
-            /* =============================
-                     Remove Projectiles
-               ============================= */
-
+            // Remove projectiles
             staffProjectiles.RemoveAll(n =>
-                n.Position.X < 0 || 
+                n.Position.X < 0 ||
                 n.Position.Y < 0 ||
                 n.Position.X > viewPixelsX ||
                 n.Position.Y > viewPixelsY
@@ -257,10 +240,9 @@ namespace OriginOfLoot
                 n.Position.Y > viewPixelsY
             );
 
-            /* =============================
-                     Enemy Creation
-               ============================= */
+            /*----------------- Enemies -----------------*/
 
+            // Enemy creation
             if (timeToNextEnemySpawn <= 0)
             {
                 var redRanged = new RedRanged(
@@ -277,32 +259,15 @@ namespace OriginOfLoot
                 timeToNextEnemySpawn -= deltaTime;
             }
 
-            /* =============================
-                     Enemy Movement
-               ============================= */
-
+            // Enemy movement
             foreach (var enemy in activeEnemies)
             {
                 enemy.Position += enemy.Velocity * deltaTime;
                 enemy.Rectangle = Geometry.NewRectangle(enemy.Position, enemy.Texture);
             }
 
-            /* =============================
-                     Enemy Screen Boundary
-               ============================= */
-
-            activeEnemies.RemoveAll(n =>
-                n.Position.X < 0 ||
-                n.Position.Y < 0 ||
-                n.Position.X > viewPixelsX ||
-                n.Position.Y > viewPixelsY
-            );
-
-
-            /* ===================================
-                 Enemy and Projectile Collision
-               =================================== */
-
+            
+            // Enemy collision
             foreach (var enemy in activeEnemies)
             {
                 // Rotator
@@ -326,7 +291,15 @@ namespace OriginOfLoot
                     }
                 }
             }
+
+            // Remove enemies
             activeEnemies.RemoveAll(n => n.CurrentHealth <= 0);
+            activeEnemies.RemoveAll(n =>
+                n.Position.X < 0 ||
+                n.Position.Y < 0 ||
+                n.Position.X > viewPixelsX ||
+                n.Position.Y > viewPixelsY
+            );
 
 
             base.Update(gameTime);
@@ -335,8 +308,7 @@ namespace OriginOfLoot
         protected override void Draw(GameTime gameTime)
         {
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            GraphicsDevice.Clear(Color.Aquamarine);
-
+            GraphicsDevice.Clear(Color.DarkSlateGray);
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), 
                                samplerState: SamplerState.PointClamp,
                                sortMode: SpriteSortMode.FrontToBack,
@@ -353,7 +325,6 @@ namespace OriginOfLoot
                 effects: default,
                 layerDepth: 0f
             );
-           
             // Player
             _spriteBatch.Draw(
                 texture: playerTexture,
@@ -366,7 +337,7 @@ namespace OriginOfLoot
                 effects: player.FacingRight ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                 layerDepth: entityStandardDepth + (player.Position.Y / 100000)
             );
-            // Player Weapon
+            // Player weapon
             _spriteBatch.Draw(
                 texture: player.Weapon switch {
                     Rotator => rotatorTexture,
@@ -384,12 +355,10 @@ namespace OriginOfLoot
             );
             foreach (var projectile in staffProjectiles)
             {
-                for (int i = 0; i < 3; i++)
-                {
-                    // Staff Projectile
-                    _spriteBatch.Draw(
+                // Staff projectile
+                _spriteBatch.Draw(
                         texture: staffProjectileTexture,
-                        position: projectile.Position + i * (projectile.Velocity * deltaTime),
+                        position: projectile.Position,
                         sourceRectangle: default,
                         color: Color.White,
                         rotation: 0f,
@@ -398,11 +367,10 @@ namespace OriginOfLoot
                         effects: player.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                         layerDepth: entityStandardDepth + (player.Position.Y / 100000) + 0.000002f
                     );
-                }
             }
             foreach (var projectile in rotatorProjectiles)
             {
-                // Rotator Projectile
+                // Rotator projectile
                 _spriteBatch.Draw(
                     texture: rotatorProjectileTexture,
                     position: projectile.Position,
@@ -429,7 +397,7 @@ namespace OriginOfLoot
                     effects: default,
                     layerDepth: entityStandardDepth + (enemy.Position.Y / 100000)
                 );
-                // Enemy Healthbar
+                // Enemy healthbar
                 _spriteBatch.Draw(
                     texture: healthbarTexture,
                     position: enemy.Position + enemy.HealthbarOffset,
@@ -443,7 +411,6 @@ namespace OriginOfLoot
                 );
             }
             _spriteBatch.End();
-
             base.Draw(gameTime);
         }
     }
