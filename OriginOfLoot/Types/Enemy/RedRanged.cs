@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Static;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,42 @@ namespace OriginOfLoot.Types.Enemy
         {
             Texture = texture;
             Position = position;
-
-            direction.Normalize();
             Velocity = direction * Speed;
-
             Rectangle = Geometry.NewRectangle(position, texture);
+        }
+
+        public void Update(float deltaTime, Vector2 playerPosition)
+        {
+            var direction = Geometry.Direction(Position, playerPosition);
+            Velocity = direction * Speed;
+            Position += Velocity * deltaTime;
+            Rectangle = Geometry.NewRectangle(Position, Texture);
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(
+                texture: Texture,
+                position: Position,
+                sourceRectangle: default,
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: default,
+                layerDepth: ConstConfig.StandardDepth + (Position.Y / 100000)
+            );
+            spriteBatch.Draw(
+                texture: TextureStore.HealthBar,
+                position: Position + HealthbarOffset,
+                sourceRectangle: TextureStore.HealthBarRectangles[HealthbarFrame()],
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: default,
+                layerDepth: ConstConfig.StandardDepth + (Position.Y / 100000)
+            );
         }
 
         public int HealthbarFrame()

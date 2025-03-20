@@ -15,6 +15,8 @@ namespace OriginOfLoot.Types.Enemy
         public int CurrentHealth { get; set; }
         public Vector2 HealthbarOffset { get; set; }
 
+        public void Update(float deltaTime, Vector2 playerPosition);
+        public void Draw(SpriteBatch spriteBatch);
         public int HealthbarFrame();
     }
 }

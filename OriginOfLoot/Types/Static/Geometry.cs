@@ -25,5 +25,12 @@ namespace OriginOfLoot.Types.Static
 
             return squaredDistance <= radius * radius;
         }
+
+        public static Vector2 Direction(Vector2 start, Vector2 end)
+        {
+            var direction = new Vector2(end.X - start.X, end.Y - start.Y);
+            direction.Normalize();
+            return direction;
+        }
     }
 }

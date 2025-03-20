@@ -50,7 +50,7 @@ namespace OriginOfLoot
             _camera = new OrthographicCamera(_viewportAdapter);
 
             _player = new ActivePlayer();
-            _enemyManager = new EnemyManager();
+            _enemyManager = new EnemyManager(_player);
             _projectileManager = new ProjectileManager(_player, _enemyManager);
             _inputManager = new InputManager(_player, _projectileManager, _enemyManager);
 

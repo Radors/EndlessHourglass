@@ -4,44 +4,79 @@ using OriginOfLoot.Types.Static;
 using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
 using System.Collections.Generic;
+using System;
+using OriginOfLoot.Types.Player;
 
 namespace OriginOfLoot.Types.Enemy
 {
     public class EnemyManager
     {
         public List<IActiveEnemy> ActiveEnemies { get; set; } = new();
-        public int GameStage { get; set; } = 0;
-        public float GameStageTimeLeft { get; set; } = 10;
-        public float TimeSinceLastSpawn { get; set; } = 0;
+        public int GameStage { get; set; } = 1;
+        public const float TotalTimePerStage = 10f;
+        public float GameStageTimeLeft { get; set; } = 10f;
+        public float TimeToNextSpawn { get; set; } = 0;
+        private readonly ActivePlayer _player;
+        private readonly Random _random = new Random();
+        private readonly int _xSpawnMax;
+        private readonly int _ySpawnMax;
 
-        public EnemyManager()
+        public EnemyManager(ActivePlayer player)
         {
+            _player = player;
+            _xSpawnMax = ConstConfig.ViewPixelsX - ConstConfig.TileStandard;
+            _ySpawnMax = ConstConfig.ViewPixelsY - (2 * ConstConfig.TileStandard);
+        }
+
+        public void SpawnEnemy()
+        {
+            int spawnCorridor = _random.Next(3);
+            Vector2 spawnPosition = spawnCorridor switch
+            {
+                0 => new Vector2(0, _random.Next(_ySpawnMax)),
+                1 => new Vector2(_random.Next(_xSpawnMax), _ySpawnMax),
+                2 => new Vector2(_xSpawnMax, _random.Next(_ySpawnMax)),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
+            var redRanged = new RedRanged(
+                                    TextureStore.RedRanged,
+                                    spawnPosition,
+                                    spawnDirection
+                                );
+
+            ActiveEnemies.Add(redRanged);
         }
 
         public void Update(float deltaTime)
         {
-            // Spawn
-            if (TimeSinceLastSpawn <= 0)
+            // 
+            if (GameStageTimeLeft <= 0)
             {
-                var redRanged = new RedRanged(
-                                    TextureStore.RedRanged,
-                                    new Vector2(0, 200),
-                                    new Vector2(1, 0)
-                                );
-
-                ActiveEnemies.Add(redRanged);
-                TimeSinceLastSpawn = 1;
+                GameStage += 1;
+                GameStageTimeLeft = TotalTimePerStage;
             }
             else
             {
-                TimeSinceLastSpawn -= deltaTime;
+                GameStageTimeLeft -= deltaTime;
             }
 
-            // Movement
+            // Spawn
+            if (TimeToNextSpawn <= 0)
+            {
+                SpawnEnemy();
+                TimeToNextSpawn = 10f / (4f + GameStage);
+            }
+            else
+            {
+                TimeToNextSpawn -= deltaTime;
+            }
+
+            // Update each enemy
             foreach (var enemy in ActiveEnemies)
             {
-                enemy.Position += enemy.Velocity * deltaTime;
-                enemy.Rectangle = Geometry.NewRectangle(enemy.Position, enemy.Texture);
+                enemy.Update(deltaTime, _player.Position);
             }
 
             // Remove
@@ -59,30 +94,7 @@ namespace OriginOfLoot.Types.Enemy
         {
             foreach (var enemy in ActiveEnemies)
             {
-                // Enemy
-                spriteBatch.Draw(
-                    texture: enemy.Texture,
-                    position: enemy.Position,
-                    sourceRectangle: default,
-                    color: Color.White,
-                    rotation: 0f,
-                    origin: default,
-                    scale: 1f,
-                    effects: default,
-                    layerDepth: ConstConfig.StandardDepth + (enemy.Position.Y / 100000)
-                );
-                // Enemy healthbar
-                spriteBatch.Draw(
-                    texture: TextureStore.HealthBar,
-                    position: enemy.Position + enemy.HealthbarOffset,
-                    sourceRectangle: TextureStore.HealthBarRectangles[enemy.HealthbarFrame()],
-                    color: Color.White,
-                    rotation: 0f,
-                    origin: default,
-                    scale: 1f,
-                    effects: default,
-                    layerDepth: ConstConfig.StandardDepth + (enemy.Position.Y / 100000)
-                );
+                enemy.Draw(spriteBatch);
             }
         }
     }
