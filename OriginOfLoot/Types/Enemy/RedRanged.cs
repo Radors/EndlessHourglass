@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using OriginOfLoot.StaticMethods;
+using OriginOfLoot.Types.Static;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

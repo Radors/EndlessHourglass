@@ -11,6 +11,7 @@ namespace OriginOfLoot.Types.Projectile
         public Vector2 Position { get; set; }
         public Vector2 Velocity { get; set; }
         public Rectangle Rectangle { get; set; }
+        public bool FacingRight { get; set; }
         public List<IActiveEnemy> EnemiesHit { get; set; }
         public float Speed { get; set; }
     }
