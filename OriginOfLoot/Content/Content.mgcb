@@ -14,7 +14,7 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin ase_prod/healthbar.png
+#begin ase_prod/healthBar.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -24,7 +24,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:ase_prod/healthbar.png
+/build:ase_prod/healthBar.png
 
 #begin ase_prod/map.png
 /importer:TextureImporter

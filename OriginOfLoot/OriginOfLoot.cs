@@ -103,7 +103,6 @@ namespace OriginOfLoot
                 effects: default,
                 layerDepth: 0f
             );
-
             _spriteBatch.Draw(
                 texture: TextureStore.Numbers,
                 position: new Vector2(307, 87),
@@ -115,6 +114,20 @@ namespace OriginOfLoot
                 effects: default,
                 layerDepth: 0.1f
             );
+            if (_enemyManager.GameStage > 19)
+            {
+                _spriteBatch.DrawString(
+                    font: TextureStore.Font,
+                    text: $"TIER {_enemyManager.GameStage - 19}",
+                    position: new Vector2(_enemyManager.GameStage > 28 ? 298 : 303, 103),
+                    color: new Color(29, 29, 29, 255),
+                    rotation: default,
+                    origin: default,
+                    scale: 1f,
+                    effect: default,
+                    layerDepth: 0.1f
+                );
+            }
 
             _player.Draw(_spriteBatch);
             _projectileManager.Draw(_spriteBatch);

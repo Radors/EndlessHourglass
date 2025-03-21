@@ -13,8 +13,8 @@ namespace OriginOfLoot.Types.Enemy
     {
         public List<IActiveEnemy> Enemies { get; set; } = new();
         public int GameStage { get; set; } = 1;
-        public const float TotalTimePerStage = 20f;
-        public float GameStageTimeLeft { get; set; } = 20f;
+        public const float TotalTimePerStage = 1f;
+        public float GameStageTimeLeft { get; set; } = 1f;
         public float TimeToNextSpawn { get; set; } = 0;
         private readonly ActivePlayer _player;
         private readonly Random _random = new Random();
