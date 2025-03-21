@@ -103,22 +103,22 @@ namespace OriginOfLoot
                 effects: default,
                 layerDepth: 0f
             );
-            
+
+            _spriteBatch.Draw(
+                texture: TextureStore.Numbers,
+                position: new Vector2(307, 87),
+                sourceRectangle: TextureStore.NumbersRectangles[Math.Clamp(_enemyManager.GameStage-1, 0, 19)],
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+                scale: 1f,
+                effects: default,
+                layerDepth: 0.1f
+            );
+
             _player.Draw(_spriteBatch);
             _projectileManager.Draw(_spriteBatch);
             _enemyManager.Draw(_spriteBatch);
-
-            _spriteBatch.DrawString(
-                font: TextureStore.Font,
-                text: $"{_enemyManager.GameStage}",
-                position: new Vector2(350, 66),
-                color: new Color(114, 80, 0, 255),
-                rotation: default,
-                origin: default,
-                scale: 1f,
-                effect: default,
-                layerDepth: 0.1f
-            );
 
             _spriteBatch.End();
             base.Draw(gameTime);
