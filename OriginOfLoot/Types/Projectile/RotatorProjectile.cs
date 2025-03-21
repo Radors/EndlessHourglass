@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
+using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Enemy;
 using OriginOfLoot.Types.Static;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ namespace OriginOfLoot.Types.Projectile
         public bool FacingRight { get; set; }
         public List<IActiveEnemy> EnemiesHit { get; set; } = new();
         public float Speed { get; set; } = 350f;
+        public int Damage { get; set; } = 40;
 
         public int CurrentFrame { get; set; } = 0;
         public float CurrentFrameTime { get; set; } = 0f;
@@ -46,6 +49,29 @@ namespace OriginOfLoot.Types.Projectile
             {
                 CurrentFrameTime += deltaTime;
             }
+        }
+
+        public void Update(float deltaTime)
+        {
+            Position += Velocity * deltaTime;
+            Rectangle = Geometry.NewRectangle(Position, Texture);
+
+            UpdateFrame(deltaTime);
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(
+                texture: TextureStore.RotatorProjectile,
+                position: Position,
+                sourceRectangle: TextureStore.RotatorProjectileRectangles[CurrentFrame],
+                color: Color.White,
+                rotation: 0f,
+                origin: default,
+            scale: 1f,
+                effects: FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
+                layerDepth: ConstConfig.StandardDepth + (Position.Y / ConstConfig.StandardDepthDivision) + 0.1f
+            );
         }
     }
 }

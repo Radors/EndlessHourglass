@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using OriginOfLoot.Types.Enemy;
 using System.Collections.Generic;
 
@@ -14,5 +15,9 @@ namespace OriginOfLoot.Types.Projectile
         public bool FacingRight { get; set; }
         public List<IActiveEnemy> EnemiesHit { get; set; }
         public float Speed { get; set; }
+        public int Damage { get; set; }
+
+        public void Update(float deltaTime);
+        public void Draw(SpriteBatch spriteBatch);
     }
 }

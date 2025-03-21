@@ -11,7 +11,7 @@ namespace OriginOfLoot.Types.Enemy
 {
     public class EnemyManager
     {
-        public List<IActiveEnemy> ActiveEnemies { get; set; } = new();
+        public List<IActiveEnemy> Enemies { get; set; } = new();
         public int GameStage { get; set; } = 1;
         public const float TotalTimePerStage = 10f;
         public float GameStageTimeLeft { get; set; } = 10f;
@@ -46,12 +46,12 @@ namespace OriginOfLoot.Types.Enemy
                                     spawnDirection
                                 );
 
-            ActiveEnemies.Add(redRanged);
+            Enemies.Add(redRanged);
         }
 
         public void Update(float deltaTime)
         {
-            // 
+            // Progress GameStage
             if (GameStageTimeLeft <= 0)
             {
                 GameStage += 1;
@@ -66,22 +66,22 @@ namespace OriginOfLoot.Types.Enemy
             if (TimeToNextSpawn <= 0)
             {
                 SpawnEnemy();
-                TimeToNextSpawn = 10f / (4f + GameStage);
+                TimeToNextSpawn = 7f / (4f + GameStage);
             }
             else
             {
                 TimeToNextSpawn -= deltaTime;
             }
 
-            // Update each enemy
-            foreach (var enemy in ActiveEnemies)
+            // Update
+            foreach (var enemy in Enemies)
             {
                 enemy.Update(deltaTime, _player.Position);
             }
 
             // Remove
-            ActiveEnemies.RemoveAll(n => n.CurrentHealth <= 0);
-            ActiveEnemies.RemoveAll(n =>
+            Enemies.RemoveAll(n => n.CurrentHealth <= 0);
+            Enemies.RemoveAll(n =>
                 n.Position.X < 0 ||
                 n.Position.Y < 0 ||
                 n.Position.X > ConstConfig.ViewPixelsX ||
@@ -92,7 +92,7 @@ namespace OriginOfLoot.Types.Enemy
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (var enemy in ActiveEnemies)
+            foreach (var enemy in Enemies)
             {
                 enemy.Draw(spriteBatch);
             }

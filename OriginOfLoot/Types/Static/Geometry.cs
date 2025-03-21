@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +12,17 @@ namespace OriginOfLoot.Types.Static
     {
         public static Rectangle NewRectangle(Vector2 position, Texture2D texture)
         {
-            return new Rectangle((int)position.X, (int)position.Y, texture.Width, texture.Height);
+            return new Rectangle((int)MathF.Round(position.X), (int)MathF.Round(position.Y), texture.Width, texture.Height);
+        }
+
+        public static bool RectangularCollision(Rectangle rectangleA, Rectangle rectangleB)
+        {
+            bool aRight = rectangleB.Left <= rectangleA.Right;
+            bool aLeft = rectangleB.Right >= rectangleA.Left;
+            bool aTop = rectangleB.Bottom >= rectangleA.Top;
+            bool aBottom = rectangleB.Top <= rectangleA.Bottom;
+
+            return aRight && aLeft && aTop && aBottom;
         }
 
         public static bool CircularCollision(Rectangle rectangleA, float radius, Rectangle rectangleB)

@@ -4,13 +4,12 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Enemy;
-using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
 using OriginOfLoot.Types.Static;
 using System;
 
-namespace OriginOfLoot.Types
+namespace OriginOfLoot.Types.Player
 {
     public class InputManager
     {

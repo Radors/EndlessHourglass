@@ -6,6 +6,7 @@ using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Static;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OriginOfLoot.Types.Projectile
 {
@@ -35,7 +36,7 @@ namespace OriginOfLoot.Types.Projectile
 
         public void Update(float deltaTime, Vector2 pointerPos)
         {
-            // Creation
+            // New
             foreach (var projectileID in playerProjectilesToSpawn)
             {
                 var position = _player.Position + _player.ProjectileOffset();
@@ -55,34 +56,21 @@ namespace OriginOfLoot.Types.Projectile
             }
             playerProjectilesToSpawn.Clear();
 
-            // Movement
+            // Update
             foreach (var projectile in Projectiles)
             {
-                projectile.Position += projectile.Velocity * deltaTime;
-                projectile.Rectangle = Geometry.NewRectangle(projectile.Position, projectile.Texture);
-
-                if (projectile is RotatorProjectile rotatorProjectile)
-                {
-                    rotatorProjectile.UpdateFrame(deltaTime);
-                }
+                projectile.Update(deltaTime);
             }
 
             // Collision
             foreach (var projectile in Projectiles)
             {
-                foreach (var enemy in _enemyManager.ActiveEnemies)
+                foreach (var enemy in _enemyManager.Enemies)
                 {
                     if (!projectile.EnemiesHit.Contains(enemy) &&
-                        projectile.Rectangle.Intersects(enemy.Rectangle))
+                        Geometry.RectangularCollision(projectile.Rectangle, enemy.Rectangle))
                     {
-                        var damage = projectile switch
-                        {
-                            RotatorProjectile => new Rotator().Damage,
-                            StaffProjectile => new Staff().Damage,
-                            _ => throw new ArgumentOutOfRangeException()
-                        };
-
-                        enemy.CurrentHealth -= damage;
+                        enemy.CurrentHealth -= projectile.Damage;
                         projectile.EnemiesHit.Add(enemy);
                     }
                 }
@@ -101,34 +89,7 @@ namespace OriginOfLoot.Types.Projectile
         {
             foreach (var projectile in Projectiles)
             {
-                if (projectile is StaffProjectile staffProjectile)
-                {
-                    spriteBatch.Draw(
-                        texture: TextureStore.StaffProjectile,
-                        position: staffProjectile.Position,
-                        sourceRectangle: default,
-                        color: Color.White,
-                        rotation: 0f,
-                        origin: default,
-                    scale: 1f,
-                        effects: projectile.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
-                        layerDepth: ConstConfig.StandardDepth + (_player.Position.Y / ConstConfig.StandardDepthDivision) + 0.000002f
-                    );
-                }
-                else if (projectile is RotatorProjectile rotatorProjectile)
-                {
-                    spriteBatch.Draw(
-                        texture: TextureStore.RotatorProjectile,
-                        position: projectile.Position,
-                        sourceRectangle: TextureStore.RotatorProjectileRectangles[rotatorProjectile.CurrentFrame],
-                        color: Color.White,
-                        rotation: 0f,
-                        origin: default,
-                    scale: 1f,
-                        effects: projectile.FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
-                        layerDepth: ConstConfig.StandardDepth + (_player.Position.Y / ConstConfig.StandardDepthDivision) + 0.000002f
-                    );
-                }
+                projectile.Draw(spriteBatch);
             }
         }
     }

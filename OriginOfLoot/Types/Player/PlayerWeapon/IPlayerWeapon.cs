@@ -11,6 +11,5 @@ namespace OriginOfLoot.Types.Player.PlayerWeapon
         public Vector2 ProjectileDirectionOffset { get; set; }
         public float FireRate { get; set; }
         public float TimeSinceFired { get; set; }
-        public int Damage { get; set; }
     }
 }

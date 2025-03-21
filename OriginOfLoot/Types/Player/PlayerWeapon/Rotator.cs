@@ -10,7 +10,11 @@ namespace OriginOfLoot.Types.Player.PlayerWeapon
         public Vector2 LeftProjectileAdjustment { get; set; } = new Vector2(0, 0);
         public Vector2 ProjectileDirectionOffset { get; set; } = new Vector2(8, 8);
         public float FireRate { get; set; } = 0.30f;
-        public float TimeSinceFired { get; set; } = 0f;
-        public int Damage { get; set; } = 40;
+        public float TimeSinceFired { get; set; }
+
+        public Rotator()
+        {
+            TimeSinceFired = FireRate;
+        }
     }
 }

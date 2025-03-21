@@ -13,7 +13,6 @@ using OriginOfLoot.Types.Enemy;
 using System.Linq;
 using System.Transactions;
 using OriginOfLoot.Types.Static;
-using OriginOfLoot.Types;
 
 namespace OriginOfLoot
 {
