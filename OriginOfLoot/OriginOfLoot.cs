@@ -13,6 +13,8 @@ using OriginOfLoot.Types.Enemy;
 using System.Linq;
 using System.Transactions;
 using OriginOfLoot.Types.Static;
+using static System.Net.Mime.MediaTypeNames;
+using MonoGame.Extended.BitmapFonts;
 
 namespace OriginOfLoot
 {
@@ -105,7 +107,19 @@ namespace OriginOfLoot
             _player.Draw(_spriteBatch);
             _projectileManager.Draw(_spriteBatch);
             _enemyManager.Draw(_spriteBatch);
-            
+
+            //_spriteBatch.DrawString(
+            //    font: TextureStore.Font,
+            //    text: $"GAME STAGE: {_enemyManager.GameStage}",
+            //    position: new Vector2(270, 40),
+            //    color: new Color(29, 29, 29, 255),
+            //    rotation: default,
+            //    origin: default,
+            //    scale: 1f,
+            //    effect: default,
+            //    layerDepth: 0.1f
+            //);
+
             _spriteBatch.End();
             base.Draw(gameTime);
         }

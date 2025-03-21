@@ -10,6 +10,7 @@
 
 #-------------------------------- References --------------------------------#
 
+/reference:..\pipeline-references\MonoGame.Extended.Content.Pipeline.dll
 
 #---------------------------------- Content ---------------------------------#
 
@@ -108,4 +109,21 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:ase_prod/staffProjectile.png
+
+#begin font/current_0.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:font/current_0.png
+
+#begin font/current.fnt
+/importer:BitmapFontImporter
+/processor:BitmapFontProcessor
+/build:font/current.fnt
 

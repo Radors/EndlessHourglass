@@ -13,8 +13,8 @@ namespace OriginOfLoot.Types.Enemy
     {
         public List<IActiveEnemy> Enemies { get; set; } = new();
         public int GameStage { get; set; } = 1;
-        public const float TotalTimePerStage = 10f;
-        public float GameStageTimeLeft { get; set; } = 10f;
+        public const float TotalTimePerStage = 20f;
+        public float GameStageTimeLeft { get; set; } = 20f;
         public float TimeToNextSpawn { get; set; } = 0;
         private readonly ActivePlayer _player;
         private readonly Random _random = new Random();
@@ -66,7 +66,7 @@ namespace OriginOfLoot.Types.Enemy
             if (TimeToNextSpawn <= 0)
             {
                 SpawnEnemy();
-                TimeToNextSpawn = 7f / (4f + GameStage);
+                TimeToNextSpawn = 2f / (1f + GameStage);
             }
             else
             {
