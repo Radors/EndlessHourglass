@@ -108,17 +108,17 @@ namespace OriginOfLoot
             _projectileManager.Draw(_spriteBatch);
             _enemyManager.Draw(_spriteBatch);
 
-            //_spriteBatch.DrawString(
-            //    font: TextureStore.Font,
-            //    text: $"GAME STAGE: {_enemyManager.GameStage}",
-            //    position: new Vector2(270, 40),
-            //    color: new Color(29, 29, 29, 255),
-            //    rotation: default,
-            //    origin: default,
-            //    scale: 1f,
-            //    effect: default,
-            //    layerDepth: 0.1f
-            //);
+            _spriteBatch.DrawString(
+                font: TextureStore.Font,
+                text: $"{_enemyManager.GameStage}",
+                position: new Vector2(350, 66),
+                color: new Color(114, 80, 0, 255),
+                rotation: default,
+                origin: default,
+                scale: 1f,
+                effect: default,
+                layerDepth: 0.1f
+            );
 
             _spriteBatch.End();
             base.Draw(gameTime);
