@@ -13,8 +13,8 @@ namespace OriginOfLoot.Types.Enemy
     {
         public List<IActiveEnemy> Enemies { get; set; } = new();
         public int GameStage { get; set; } = 1;
-        public const float TotalTimePerStage = 1f;
-        public float GameStageTimeLeft { get; set; } = 1f;
+        public const float TotalTimePerStage = 12f;
+        public float GameStageTimeLeft { get; set; } = 12f;
         public float TimeToNextSpawn { get; set; } = 0;
         private readonly ActivePlayer _player;
         private readonly Random _random = new Random();
@@ -40,13 +40,13 @@ namespace OriginOfLoot.Types.Enemy
             };
 
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
-            var redRanged = new RedRanged(
-                                    TextureStore.RedRanged,
+            var redMelee = new RedMelee(
+                                    TextureStore.RedMelee,
                                     spawnPosition,
                                     spawnDirection
                                 );
 
-            Enemies.Add(redRanged);
+            Enemies.Add(redMelee);
         }
 
         public void Update(float deltaTime)
@@ -77,6 +77,16 @@ namespace OriginOfLoot.Types.Enemy
             foreach (var enemy in Enemies)
             {
                 enemy.Update(deltaTime, _player.Position);
+            }
+
+            // Collision
+            foreach (var enemy in Enemies)
+            {
+                if (Geometry.CircularCollision(enemy.Rectangle, 20, _player.Rectangle))
+                {
+                    _player.TakeDamage(enemy.Damage);
+                    break;
+                }
             }
 
             // Remove

@@ -14,12 +14,14 @@ namespace OriginOfLoot.Types.Static
         public static Texture2D Staff { get; set; }
         public static Texture2D RotatorProjectile { get; set; }
         public static Texture2D StaffProjectile { get; set; }
-        public static Texture2D RedRanged { get; set; }
-        public static Texture2D HealthBar { get; set; }
+        public static Texture2D RedMelee { get; set; }
+        public static Texture2D HealthBarRed { get; set; }
+        public static Texture2D HealthBarGreen { get; set; }
         public static Texture2D Numbers { get; set; }
         public static BitmapFont Font { get; set; }
         public static List<Rectangle> RotatorProjectileRectangles { get; set; }
-        public static List<Rectangle> HealthBarRectangles { get; set; }
+        public static List<Rectangle> HealthBarRedRectangles { get; set; }
+        public static List<Rectangle> HealthBarGreenRectangles { get; set; }
         public static List<Rectangle> NumbersRectangles { get; set; }
 
         public static void Setup(ContentManager contentManager)
@@ -30,13 +32,15 @@ namespace OriginOfLoot.Types.Static
             Staff = contentManager.Load<Texture2D>("ase_prod/staff");
             RotatorProjectile = contentManager.Load<Texture2D>("ase_prod/rotatorProjectile");
             StaffProjectile = contentManager.Load<Texture2D>("ase_prod/staffProjectile");
-            RedRanged = contentManager.Load<Texture2D>("ase_prod/redRanged");
-            HealthBar = contentManager.Load<Texture2D>("ase_prod/healthbar");
+            RedMelee = contentManager.Load<Texture2D>("ase_prod/redMelee");
+            HealthBarRed = contentManager.Load<Texture2D>("ase_prod/healthBarRed");
+            HealthBarGreen = contentManager.Load<Texture2D>("ase_prod/healthBarGreen");
             Font = contentManager.Load<BitmapFont>("font/current");
             Numbers = contentManager.Load<Texture2D>("ase_prod/numbers");
 
             RotatorProjectileRectangles = SetAnimationRectangles(RotatorProjectile, 16, 16);
-            HealthBarRectangles = SetAnimationRectangles(HealthBar, 16, 4);
+            HealthBarRedRectangles = SetAnimationRectangles(HealthBarRed, 16, 4);
+            HealthBarGreenRectangles = SetAnimationRectangles(HealthBarGreen, 16, 4);
             NumbersRectangles = SetAnimationRectangles(Numbers, 42, 13);
         }
 

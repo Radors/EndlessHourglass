@@ -14,7 +14,8 @@ namespace OriginOfLoot.Types.Enemy
         public float Speed { get; set; }
         public int MaxHealth { get; set; }
         public int CurrentHealth { get; set; }
-        public Vector2 HealthbarOffset { get; set; }
+        public int Damage { get; set; }
+        public Vector2 HealthBarOffset { get; set; }
 
         public void Update(float deltaTime, Vector2 playerPosition);
         public void Draw(SpriteBatch spriteBatch);

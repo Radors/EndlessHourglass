@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace OriginOfLoot.Types.Enemy
 {
-    public class RedRanged : IActiveEnemy
+    public class RedMelee : IActiveEnemy
     {
         public Texture2D Texture { get; set; }
         public Vector2 Position { get; set; }
@@ -18,9 +18,10 @@ namespace OriginOfLoot.Types.Enemy
         public float Speed { get; set; } = 50f;
         public int MaxHealth { get; set; } = 140;
         public int CurrentHealth { get; set; } = 140;
-        public Vector2 HealthbarOffset { get; set; } = new Vector2(0, 32);
+        public int Damage { get; set; } = 40;
+        public Vector2 HealthBarOffset { get; set; } = new Vector2(0, 32);
 
-        public RedRanged(Texture2D texture, Vector2 position, Vector2 direction)
+        public RedMelee(Texture2D texture, Vector2 position, Vector2 direction)
         {
             Texture = texture;
             Position = position;
@@ -50,9 +51,9 @@ namespace OriginOfLoot.Types.Enemy
                 layerDepth: ConstConfig.StandardDepth + (Position.Y / 100000)
             );
             spriteBatch.Draw(
-                texture: TextureStore.HealthBar,
-                position: Position + HealthbarOffset,
-                sourceRectangle: TextureStore.HealthBarRectangles[HealthbarFrame()],
+                texture: TextureStore.HealthBarRed,
+                position: Position + HealthBarOffset,
+                sourceRectangle: TextureStore.HealthBarRedRectangles[Math.Clamp(HealthbarFrame(), 0, TextureStore.HealthBarRedRectangles.Count-1)],
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
