@@ -21,7 +21,7 @@ namespace OriginOfLoot.Types.Player
         public int MaxHealth { get; set; } = 140;
         public int CurrentHealth { get; set; } = 140;
         public Vector2 HealthBarOffset { get; set; } = new Vector2(0, 32);
-        public float TotalInvincibilityAfterHit = 0.25f;
+        public float TotalInvincibilityAfterHit = 0.30f;
         public float TimeSinceHit = 0f;
 
         public void Update(float deltaTime)

@@ -68,7 +68,7 @@ namespace OriginOfLoot.Types.Projectile
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
-            scale: 1f,
+                scale: 1f,
                 effects: FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: ConstConfig.StandardDepth + (Position.Y / ConstConfig.StandardDepthDivision) + 0.1f
             );

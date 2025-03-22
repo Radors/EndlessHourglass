@@ -6,12 +6,14 @@ using OriginOfLoot.Types.Projectile;
 using System.Collections.Generic;
 using System;
 using OriginOfLoot.Types.Player;
+using OriginOfLoot.Types.Effect;
 
 namespace OriginOfLoot.Types.Enemy
 {
     public class EnemyManager
     {
         public List<IActiveEnemy> Enemies { get; set; } = new();
+        public List<IEffect> EnemyEffects { get; set; } = new();
         public int GameStage { get; set; } = 1;
         public const float TotalTimePerStage = 12f;
         public float GameStageTimeLeft { get; set; } = 12f;
@@ -78,18 +80,33 @@ namespace OriginOfLoot.Types.Enemy
             {
                 enemy.Update(deltaTime, _player.Position);
             }
+            foreach (var effect in EnemyEffects)
+            {
+                effect.Update(deltaTime);
+            }
 
             // Collision
             foreach (var enemy in Enemies)
             {
-                if (Geometry.CircularCollision(enemy.Rectangle, 20, _player.Rectangle))
+                if (_player.TimeSinceHit > _player.TotalInvincibilityAfterHit && Geometry.CircularCollision(enemy.Rectangle, 20, _player.Rectangle))
                 {
                     _player.TakeDamage(enemy.Damage);
+
+                    var positionBetween = Geometry.PositionBetweenCenters(enemy.Rectangle, _player.Rectangle);
+                    EnemyEffects.Add(
+                        new RedMeleeEffect(
+                                positionBetween, 
+                                enemy.FacingRight
+                            )
+                        );
                     break;
                 }
             }
 
-            // Remove
+            // Remove effects
+            EnemyEffects.RemoveAll(n => n.CurrentFrame > 3); // Fix this, generalize it
+
+            // Remove enemies
             Enemies.RemoveAll(n => n.CurrentHealth <= 0);
             Enemies.RemoveAll(n =>
                 n.Position.X < 0 ||
@@ -105,6 +122,10 @@ namespace OriginOfLoot.Types.Enemy
             foreach (var enemy in Enemies)
             {
                 enemy.Draw(spriteBatch);
+            }
+            foreach (var effect in EnemyEffects)
+            {
+                effect.Draw(spriteBatch);
             }
         }
     }

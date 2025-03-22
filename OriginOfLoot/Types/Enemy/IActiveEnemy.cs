@@ -11,6 +11,7 @@ namespace OriginOfLoot.Types.Enemy
         public Vector2 Position { get; set; }
         public Rectangle Rectangle { get; set; }
         public Vector2 Velocity { get; set; }
+        public bool FacingRight { get; set; }
         public float Speed { get; set; }
         public int MaxHealth { get; set; }
         public int CurrentHealth { get; set; }
