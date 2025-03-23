@@ -9,10 +9,10 @@ namespace OriginOfLoot.Types.Effect
     public interface IEffect
     {
         public Texture2D Texture { get; set; }
-        public Vector2 CenterPosition { get; set; }
-        public bool FacingRight { get; set; }
+        public Vector2 Direction { get; set; }
 
         public float TotalTimeToLive { get; set; }
+        public int TotalFrames { get; set; }
         public int CurrentFrame { get; set; }
         public float CurrentFrameTime { get; set; }
 

@@ -34,23 +34,11 @@ namespace OriginOfLoot.Types.Static
             return squaredDistance <= radius * radius;
         }
 
-        public static Vector2 CentralizedDirection(Rectangle start, Rectangle end)
-        {
-            var direction = new Vector2(end.Center.X - start.Center.X, end.Center.Y - start.Center.Y);
-            direction.Normalize();
-            return direction;
-        }
         public static Vector2 Direction(Vector2 start, Vector2 end)
         {
             var direction = new Vector2(end.X - start.X, end.Y - start.Y);
             direction.Normalize();
             return direction;
-        }
-        public static Vector2 PositionBetweenCenters(Rectangle rectangleA, Rectangle rectangleB)
-        {
-            var centerA = new Vector2(rectangleA.X + rectangleA.Width * 0.5f, rectangleA.Y + rectangleA.Height * 0.5f);
-            var centerB = new Vector2(rectangleB.X + rectangleB.Width * 0.5f, rectangleB.Y + rectangleB.Height * 0.5f);
-            return (centerA + centerB) / 2;
         }
     }
 }

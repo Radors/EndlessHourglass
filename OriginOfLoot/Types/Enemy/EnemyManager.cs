@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System;
 using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Effect;
+using System.Diagnostics;
 
 namespace OriginOfLoot.Types.Enemy
 {
@@ -88,23 +89,17 @@ namespace OriginOfLoot.Types.Enemy
             // Collision
             foreach (var enemy in Enemies)
             {
-                if (_player.TimeSinceHit > _player.TotalInvincibilityAfterHit && Geometry.CircularCollision(enemy.Rectangle, 20, _player.Rectangle))
+                if (_player.TimeSinceHit > _player.TotalInvincibilityAfterHit && Geometry.CircularCollision(enemy.Rectangle, 22, _player.Rectangle))
                 {
                     _player.TakeDamage(enemy.Damage);
-
-                    var positionBetween = Geometry.PositionBetweenCenters(enemy.Rectangle, _player.Rectangle);
-                    EnemyEffects.Add(
-                        new RedMeleeEffect(
-                                positionBetween, 
-                                enemy.FacingRight
-                            )
-                        );
+                    var direction = Geometry.Direction(_player.Position, enemy.Position);
+                    EnemyEffects.Add(new RedMeleeEffect(direction, _player));
                     break;
                 }
             }
 
             // Remove effects
-            EnemyEffects.RemoveAll(n => n.CurrentFrame > 3); // Fix this, generalize it
+            EnemyEffects.RemoveAll(n => n.CurrentFrame > n.TotalFrames);
 
             // Remove enemies
             Enemies.RemoveAll(n => n.CurrentHealth <= 0);

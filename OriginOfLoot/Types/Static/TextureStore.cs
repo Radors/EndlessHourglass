@@ -46,7 +46,7 @@ namespace OriginOfLoot.Types.Static
             HealthBarRedRectangles = SetAnimationRectangles(HealthBarRed, 16, 4);
             HealthBarGreenRectangles = SetAnimationRectangles(HealthBarGreen, 16, 4);
             NumbersRectangles = SetAnimationRectangles(Numbers, 42, 13);
-            RedMeleeEffectRectangles = SetAnimationRectangles(RedMeleeEffect, 12, 12);
+            RedMeleeEffectRectangles = SetAnimationRectangles(RedMeleeEffect, 16, 16);
         }
 
         public static List<Rectangle> SetAnimationRectangles(Texture2D texture, int width, int height)
