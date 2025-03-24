@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Enemy;
 using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Player.PlayerWeapon;
@@ -13,7 +14,6 @@ namespace OriginOfLoot.Types.Projectile
     public class ProjectileManager
     {
         public List<IActiveProjectile> Projectiles { get; set; } = new();
-        public List<ProjectileID> playerProjectilesToSpawn { get; set; } = new();
         private readonly ActivePlayer _player;
         private readonly EnemyManager _enemyManager;
 
@@ -23,39 +23,23 @@ namespace OriginOfLoot.Types.Projectile
             _enemyManager = enemyManager;
         }
 
-        public void NewPlayerProjectile()
+        public void NewPlayerProjectile(Vector2 pointerPos)
         {
-            var projectileID = _player.Weapon switch
+            var position = _player.Position + _player.ProjectileOffset();
+            var direction = new Vector2(pointerPos.X - (position.X + _player.ProjectileDirectionOffset().X),
+                                        pointerPos.Y - (position.Y + _player.ProjectileDirectionOffset().Y));
+
+            IActiveProjectile projectile = _player.Weapon switch
             {
-                Rotator => ProjectileID.Rotator,
-                Staff => ProjectileID.Staff,
+                Rotator => new RotatorProjectile(TextureStore.RotatorProjectile, position, direction, _player.FacingRight),
+                Staff => new StaffProjectile(TextureStore.StaffProjectile, position, direction, _player.FacingRight),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            playerProjectilesToSpawn.Add(projectileID);
+            Projectiles.Add(projectile);
         }
 
         public void Update(float deltaTime, Vector2 pointerPos)
         {
-            // New
-            foreach (var projectileID in playerProjectilesToSpawn)
-            {
-                var position = _player.Position + _player.ProjectileOffset();
-
-                var direction = new Vector2(pointerPos.X - (position.X + _player.ProjectileDirectionOffset().X),
-                                            pointerPos.Y - (position.Y + _player.ProjectileDirectionOffset().Y));
-
-                IActiveProjectile projectile = projectileID switch
-                {
-                    ProjectileID.Rotator => new RotatorProjectile(TextureStore.RotatorProjectile, position, direction, _player.FacingRight),
-                    ProjectileID.Staff => new StaffProjectile(TextureStore.StaffProjectile, position, direction, _player.FacingRight),
-                    _ => throw new ArgumentOutOfRangeException()
-                };
-
-                Projectiles.Add(projectile);
-
-            }
-            playerProjectilesToSpawn.Clear();
-
             // Update
             foreach (var projectile in Projectiles)
             {

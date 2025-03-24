@@ -65,7 +65,7 @@ namespace OriginOfLoot.Types.Player
             if (mstate.LeftButton == ButtonState.Pressed &&
                 _player.Weapon.TimeSinceFired > _player.Weapon.FireRate)
             {
-                _projectileManager.NewPlayerProjectile();
+                _projectileManager.NewPlayerProjectile(pointerPos);
                 _player.Weapon.TimeSinceFired = 0;
             }
             else
