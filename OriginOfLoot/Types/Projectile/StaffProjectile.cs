@@ -11,44 +11,48 @@ namespace OriginOfLoot.Types.Projectile
 {
     public class StaffProjectile : IActiveProjectile
     {
-        public Texture2D Texture { get; set; }
-        public Vector2 Position { get; set; }
-        public Vector2 Velocity { get; set; }
-        public Rectangle Rectangle { get; set; }
-        public bool FacingRight { get; set; }
-        public List<IActiveEnemy> EnemiesHit { get; set; } = new();
-        public float Speed { get; set; } = 250f;
-        public int Damage { get; set; } = 40;
+        private Texture2D _texture = TextureStore.RotatorProjectile;
+        private float _speed { get; set; } = 250f;
+        private float _timePerFrame { get; set; } = 0.03f; // no animation made yet
+        private float _currentFrameTime { get; set; } = 0f; // no animation made yet
 
-        public StaffProjectile(Texture2D texture, Vector2 position, Vector2 direction, bool facingRight)
+        public List<IActiveEnemy> EnemiesHit { get; set; } = new();
+        public Vector2 Position { get; private set; }
+        public Vector2 Velocity { get; private set; }
+        public Rectangle Rectangle { get; private set; }
+        public bool FacingRight { get; private set; }
+        public int Damage { get; set; } = 40;
+        public int TotalFrames { get; } = 6; // no animation made yet
+        public int CurrentFrame { get; private set; } = 1; // no animation made yet
+
+        public StaffProjectile(Vector2 position, Vector2 direction, bool facingRight)
         {
-            Texture = texture;
             Position = position;
 
             direction.Normalize();
-            Velocity = direction * Speed;
+            Velocity = direction * _speed;
 
             FacingRight = facingRight;
 
-            Rectangle = Geometry.NewRectangle(position, texture);
+            Rectangle = Geometry.NewRectangle(position, _texture);
         }
 
         public void Update(float deltaTime) 
         {
             Position += Velocity * deltaTime;
-            Rectangle = Geometry.NewRectangle(Position, Texture);
+            Rectangle = Geometry.NewRectangle(Position, _texture);
         }
 
         public void Draw(SpriteBatch spriteBatch) 
         {
             spriteBatch.Draw(
-                texture: TextureStore.StaffProjectile,
+                texture: TextureStore.StaffProjectile, // no animation made yet
                 position: Position,
-                sourceRectangle: default,
+                sourceRectangle: default, // no animation made yet
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
-            scale: 1f,
+                scale: 1f,
                 effects: FacingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
                 layerDepth: ConstConfig.StandardDepth + (Position.Y / ConstConfig.StandardDepthDivision) + 0.1f
             );

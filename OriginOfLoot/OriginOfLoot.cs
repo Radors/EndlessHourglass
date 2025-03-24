@@ -1,20 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.ViewportAdapters;
 using MonoGame.Extended;
+using MonoGame.Extended.ViewportAdapters;
+using MonoGame.Extended.BitmapFonts;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
 using OriginOfLoot.Types.Enemy;
-using System.Linq;
-using System.Transactions;
 using OriginOfLoot.Types.Static;
-using static System.Net.Mime.MediaTypeNames;
-using MonoGame.Extended.BitmapFonts;
 
 namespace OriginOfLoot
 {

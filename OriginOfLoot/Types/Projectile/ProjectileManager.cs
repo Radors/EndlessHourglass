@@ -31,8 +31,8 @@ namespace OriginOfLoot.Types.Projectile
 
             IActiveProjectile projectile = _player.Weapon switch
             {
-                Rotator => new RotatorProjectile(TextureStore.RotatorProjectile, position, direction, _player.FacingRight),
-                Staff => new StaffProjectile(TextureStore.StaffProjectile, position, direction, _player.FacingRight),
+                Rotator => new RotatorProjectile(position, direction, _player.FacingRight),
+                Staff => new StaffProjectile(position, direction, _player.FacingRight),
                 _ => throw new ArgumentOutOfRangeException()
             };
             Projectiles.Add(projectile);
