@@ -17,6 +17,9 @@ namespace OriginOfLoot.Types.Player
         private readonly ProjectileManager _projectileManager;
         private readonly EnemyManager _enemyManager;
 
+        private readonly Rectangle RotatorEquipRectangle = new Rectangle(269, 45, 1, 1);
+        private readonly Rectangle StaffEquipRectangle = new Rectangle(388, 45, 1, 1);
+
         public InputManager(ActivePlayer player, ProjectileManager projectileManager, EnemyManager enemyManager)
         {
             _player = player;
@@ -52,13 +55,16 @@ namespace OriginOfLoot.Types.Player
             _player.InputDirection = inputDirection;
 
             // -------------------------------------------------
-            if (kstate.IsKeyDown(Keys.NumPad1))
+            if (kstate.IsKeyDown(Keys.E))
             {
-                _player.Weapon = new Rotator();
-            }
-            if (kstate.IsKeyDown(Keys.NumPad2))
-            {
-                _player.Weapon = new Staff();
+                if (Geometry.CircularCollision(_player.Rectangle, 30, RotatorEquipRectangle))
+                {
+                    _player.Weapon = new Rotator();
+                }
+                else if (Geometry.CircularCollision(_player.Rectangle, 30, StaffEquipRectangle))
+                {
+                    _player.Weapon = new Staff();
+                }
             }
 
             // -------------------------------------------------
