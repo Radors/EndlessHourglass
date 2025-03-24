@@ -70,8 +70,8 @@ namespace OriginOfLoot.Types.Projectile
                     if (!projectile.EnemiesHit.Contains(enemy) &&
                         Geometry.RectangularCollision(projectile.Rectangle, enemy.Rectangle))
                     {
-                        enemy.CurrentHealth -= projectile.Damage;
                         projectile.EnemiesHit.Add(enemy);
+                        enemy.CurrentHealth -= projectile.Damage;
                     }
                 }
             }

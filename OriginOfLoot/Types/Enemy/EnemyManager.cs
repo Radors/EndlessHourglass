@@ -14,7 +14,7 @@ namespace OriginOfLoot.Types.Enemy
     public class EnemyManager
     {
         public List<IActiveEnemy> Enemies { get; set; } = new();
-        public List<IEffect> EnemyEffects { get; set; } = new();
+        public List<IAttachedEffect> AttachedEffects { get; set; } = new();
         public int GameStage { get; set; } = 1;
         public const float TotalTimePerStage = 12f;
         public float GameStageTimeLeft { get; set; } = 12f;
@@ -81,7 +81,7 @@ namespace OriginOfLoot.Types.Enemy
             {
                 enemy.Update(deltaTime, _player.Position);
             }
-            foreach (var effect in EnemyEffects)
+            foreach (var effect in AttachedEffects)
             {
                 effect.Update(deltaTime);
             }
@@ -93,13 +93,13 @@ namespace OriginOfLoot.Types.Enemy
                 {
                     _player.TakeDamage(enemy.Damage);
                     var direction = Geometry.Direction(_player.Position, enemy.Position);
-                    EnemyEffects.Add(new RedMeleeEffect(direction, _player));
+                    AttachedEffects.Add(new RedMeleeEffect(direction, _player));
                     break;
                 }
             }
 
             // Remove effects
-            EnemyEffects.RemoveAll(n => n.CurrentFrame > n.TotalFrames);
+            AttachedEffects.RemoveAll(n => n.CurrentFrame > n.TotalFrames);
 
             // Remove enemies
             Enemies.RemoveAll(n => n.CurrentHealth <= 0);
@@ -118,7 +118,7 @@ namespace OriginOfLoot.Types.Enemy
             {
                 enemy.Draw(spriteBatch);
             }
-            foreach (var effect in EnemyEffects)
+            foreach (var effect in AttachedEffects)
             {
                 effect.Draw(spriteBatch);
             }
