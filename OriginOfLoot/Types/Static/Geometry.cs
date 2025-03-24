@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-
 namespace OriginOfLoot.Types.Static
 {
     public static class Geometry

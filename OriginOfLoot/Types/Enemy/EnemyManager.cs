@@ -13,22 +13,24 @@ namespace OriginOfLoot.Types.Enemy
 {
     public class EnemyManager
     {
-        public List<IActiveEnemy> Enemies { get; set; } = new();
-        public List<IAttachedEffect> AttachedEffects { get; set; } = new();
-        public int GameStage { get; set; } = 1;
-        public const float TotalTimePerStage = 12f;
-        public float GameStageTimeLeft { get; set; } = 12f;
-        public float TimeToNextSpawn { get; set; } = 0;
+        private const float _totalTimePerStage = 12f;
         private readonly ActivePlayer _player;
         private readonly Random _random = new Random();
         private readonly int _xSpawnMax;
         private readonly int _ySpawnMax;
+
+        public List<IActiveEnemy> Enemies { get; private set; } = new();
+        public List<IAttachedEffect> AttachedEffects { get; private set; } = new();
+        public int GameStage { get; private set; } = 1;
+        public float GameStageTimeLeft { get; private set; }
+        public float TimeToNextSpawn { get; private set; } = 0;
 
         public EnemyManager(ActivePlayer player)
         {
             _player = player;
             _xSpawnMax = ConstConfig.ViewPixelsX - ConstConfig.TileStandard;
             _ySpawnMax = ConstConfig.ViewPixelsY - (2 * ConstConfig.TileStandard);
+            GameStageTimeLeft = _totalTimePerStage;
         }
 
         public void SpawnEnemy()
@@ -43,11 +45,7 @@ namespace OriginOfLoot.Types.Enemy
             };
 
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
-            var redMelee = new RedMelee(
-                                    TextureStore.RedMelee,
-                                    spawnPosition,
-                                    spawnDirection
-                                );
+            var redMelee = new RedMelee(spawnPosition, spawnDirection);
 
             Enemies.Add(redMelee);
         }
@@ -58,7 +56,7 @@ namespace OriginOfLoot.Types.Enemy
             if (GameStageTimeLeft <= 0)
             {
                 GameStage += 1;
-                GameStageTimeLeft = TotalTimePerStage;
+                GameStageTimeLeft = _totalTimePerStage;
             }
             else
             {
@@ -110,7 +108,6 @@ namespace OriginOfLoot.Types.Enemy
                 n.Position.Y > ConstConfig.ViewPixelsY
             );
         }
-
 
         public void Draw(SpriteBatch spriteBatch)
         {

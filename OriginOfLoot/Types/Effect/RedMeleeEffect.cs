@@ -10,7 +10,7 @@ namespace OriginOfLoot.Types.Effect
     {
         private readonly Vector2 _direction;
         private readonly ActivePlayer _player;
-        private readonly float _totalTimeToLive = 0.30f;
+        private const float _totalTimeToLive = 0.30f;
         private float _currentTimeAlive = 0f;
 
         public int TotalFrames { get; } = 11;

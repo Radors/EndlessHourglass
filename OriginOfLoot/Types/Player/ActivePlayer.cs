@@ -11,29 +11,70 @@ namespace OriginOfLoot.Types.Player
 {
     public class ActivePlayer
     {
-        public Vector2 InputDirection { get; set; } = new Vector2(0, 0);
-        public Vector2 Position { get; set; } = new Vector2(0, 0);
-        public Rectangle Rectangle { get; set; } = new Rectangle(0, 0, 0, 0);
-        public Vector2 Velocity { get; set; } = new Vector2(0, 0);
+        private Vector2 _healthBarOffset = new Vector2(0, 32);
+        private float _speed = 180f;
+        private Vector2 _velocity = new();
+
+        public Vector2 InputDirection { get; set; } = new();
+        public Vector2 Position { get; set; } = new();
+        public Rectangle Rectangle { get; set; } = new();
         public IPlayerWeapon Weapon { get; set; } = new Rotator();
         public bool FacingRight { get; set; } = true;
-        public float Speed { get; set; } = 180f;
-        public int MaxHealth { get; set; } = 140;
-        public int CurrentHealth { get; set; } = 140;
-        public Vector2 HealthBarOffset { get; set; } = new Vector2(0, 32);
-        public float TotalInvincibilityAfterHit = 0.30f;
-        public float TimeSinceHit = 0f;
+        public int MaxHealth { get; } = 140;
+        public int CurrentHealth { get; set; }
+        public float TotalInvincibilityAfterHit { get; } = 0.30f;
+        public float TimeSinceHit { get; private set; } = 0f;
+
+        public ActivePlayer()
+        {
+            CurrentHealth = MaxHealth;
+        }
+
+        public void TakeDamage(int damage)
+        {
+            if (TimeSinceHit > TotalInvincibilityAfterHit)
+            {
+                CurrentHealth -= damage;
+                TimeSinceHit = 0;
+            }
+        }
+
+        public int HealthBarIndex()
+        {
+            int frame = (int)(CurrentHealth / 10f);
+            return ConstConfig.StandardHealthBarTotalFrames - frame - 1;
+        }
+
+        public Vector2 WeaponOffset()
+        {
+            return FacingRight ?
+                   Weapon.BaseOffset :
+                   new Vector2(-Weapon.BaseOffset.X, Weapon.BaseOffset.Y);
+        }
+
+        public Vector2 ProjectileOffset()
+        {
+            return FacingRight ?
+                   Weapon.BaseOffsetProjectile :
+                   new Vector2(-Weapon.BaseOffsetProjectile.X + Weapon.LeftProjectileAdjustment.X,
+                                Weapon.BaseOffsetProjectile.Y + Weapon.LeftProjectileAdjustment.Y);
+        }
+
+        public Vector2 ProjectileDirectionOffset()
+        {
+            return Weapon.ProjectileDirectionOffset;
+        }
 
         public void Update(float deltaTime)
         {
             // Position
-            Velocity = InputDirection * Speed;
-            Position += Velocity * deltaTime;
+            _velocity = InputDirection * _speed;
+            Position += _velocity * deltaTime;
 
             // Rectangle
             Rectangle = Geometry.NewRectangle(Position, TextureStore.Player);
 
-            // Time
+            // Invincibility
             TimeSinceHit += deltaTime;
 
             // Boundary
@@ -88,46 +129,15 @@ namespace OriginOfLoot.Types.Player
             );
             spriteBatch.Draw(
                 texture: TextureStore.HealthBarGreen,
-                position: Position + HealthBarOffset,
-                sourceRectangle: TextureStore.HealthBarGreenRectangles[Math.Clamp(HealthbarFrame(), 0, TextureStore.HealthBarRedRectangles.Count-1)],
+                position: Position + _healthBarOffset,
+                sourceRectangle: TextureStore.HealthBarGreenRectangles[Math.Clamp(HealthBarIndex(), 0, TextureStore.HealthBarRedRectangles.Count-1)],
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
                 scale: 1f,
                 effects: default,
-                layerDepth: ConstConfig.StandardDepth + (Position.Y / 100000)
+                layerDepth: ConstConfig.StandardDepth + (Position.Y / ConstConfig.StandardDepthDivision)
             );
-        }
-
-        public void TakeDamage(int damage)
-        {
-            if (TimeSinceHit > TotalInvincibilityAfterHit)
-            {
-                CurrentHealth -= damage;
-                TimeSinceHit = 0;
-            }
-        }
-        public int HealthbarFrame()
-        {
-            int frame = (int)(CurrentHealth / 10f);
-            return 14 - frame;
-        }
-        public Vector2 WeaponOffset()
-        {
-            return FacingRight ?
-                   Weapon.BaseOffset :
-                   new Vector2(-Weapon.BaseOffset.X, Weapon.BaseOffset.Y);
-        }
-        public Vector2 ProjectileOffset()
-        {
-            return FacingRight ?
-                   Weapon.BaseOffsetProjectile :
-                   new Vector2(-Weapon.BaseOffsetProjectile.X + Weapon.LeftProjectileAdjustment.X, 
-                                Weapon.BaseOffsetProjectile.Y + Weapon.LeftProjectileAdjustment.Y);
-        }
-        public Vector2 ProjectileDirectionOffset()
-        {
-            return Weapon.ProjectileDirectionOffset;
         }
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace OriginOfLoot.Types.Static
 {
     public static class ConstConfig
@@ -13,5 +8,6 @@ namespace OriginOfLoot.Types.Static
         public const int TileStandard = 16;
         public const float StandardDepth = 0.5f;
         public const float StandardDepthDivision = 100000f;
+        public const int StandardHealthBarTotalFrames = 14;
     }
 }
