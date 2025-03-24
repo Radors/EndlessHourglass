@@ -16,6 +16,7 @@ namespace OriginOfLoot.Types.Static
         public static Texture2D StaffProjectile { get; private set; }
         public static Texture2D RedMelee { get; private set; }
         public static Texture2D RedMeleeEffect { get; private set; }
+        public static Texture2D RedRanged { get; private set; }
         public static Texture2D HealthBarRed { get; private set; }
         public static Texture2D HealthBarGreen { get; private set; }
         public static Texture2D Numbers { get; private set; }
@@ -37,6 +38,7 @@ namespace OriginOfLoot.Types.Static
             StaffProjectile = contentManager.Load<Texture2D>("ase_prod/staffProjectile");
             RedMelee = contentManager.Load<Texture2D>("ase_prod/redMelee");
             RedMeleeEffect = contentManager.Load<Texture2D>("ase_prod/redMeleeEffect");
+            RedRanged = contentManager.Load<Texture2D>("ase_prod/redRanged");
             HealthBarRed = contentManager.Load<Texture2D>("ase_prod/healthBarRed");
             HealthBarGreen = contentManager.Load<Texture2D>("ase_prod/healthBarGreen");
             Font = contentManager.Load<BitmapFont>("font/current");

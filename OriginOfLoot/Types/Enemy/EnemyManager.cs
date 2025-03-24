@@ -33,7 +33,7 @@ namespace OriginOfLoot.Types.Enemy
             GameStageTimeLeft = _totalTimePerStage;
         }
 
-        public void SpawnEnemy()
+        public Vector2 NewSpawnPosition()
         {
             int spawnCorridor = _random.Next(3);
             Vector2 spawnPosition = spawnCorridor switch
@@ -43,11 +43,19 @@ namespace OriginOfLoot.Types.Enemy
                 2 => new Vector2(_xSpawnMax, _random.Next(_ySpawnMax)),
                 _ => throw new ArgumentOutOfRangeException()
             };
+            return spawnPosition;
+        }
 
+        public void SpawnEnemy()
+        {
+            var spawnPosition = NewSpawnPosition();
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
-            var redMelee = new RedMelee(spawnPosition, spawnDirection);
 
-            Enemies.Add(redMelee);
+            var choice = _random.Next(10);
+            IActiveEnemy enemy = GameStage >= 5 && choice == 0 ? new RedRanged(spawnPosition, spawnDirection) :
+                                                                 new RedMelee(spawnPosition, spawnDirection);
+
+            Enemies.Add(enemy);
         }
 
         public void Update(float deltaTime)
