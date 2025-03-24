@@ -14,7 +14,7 @@ namespace OriginOfLoot.Types.Projectile
     {
         private Texture2D _texture = TextureStore.RotatorProjectile;
         private float _speed { get; set; } = 350f;
-        private float _timePerFrame { get; set; } = 0.03f;
+        private float _timePerFrame { get; set; } = 0.04f;
         private float _currentFrameTime { get; set; } = 0f;
 
         public List<IActiveEnemy> EnemiesHit { get; set; } = new();

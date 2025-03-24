@@ -21,6 +21,7 @@ namespace OriginOfLoot.Types.Static
         public static Texture2D Numbers { get; private set; }
         public static BitmapFont Font { get; private set; }
         public static List<Rectangle> RotatorProjectileRectangles { get; private set; }
+        public static List<Rectangle> StaffProjectileRectangles { get; private set; }
         public static List<Rectangle> HealthBarRedRectangles { get; private set; }
         public static List<Rectangle> HealthBarGreenRectangles { get; private set; }
         public static List<Rectangle> NumbersRectangles { get; private set; }
@@ -42,6 +43,7 @@ namespace OriginOfLoot.Types.Static
             Numbers = contentManager.Load<Texture2D>("ase_prod/numbers");
             
             RotatorProjectileRectangles = SetAnimationRectangles(RotatorProjectile, 16, 16);
+            StaffProjectileRectangles = SetAnimationRectangles(StaffProjectile, 12, 12);
             HealthBarRedRectangles = SetAnimationRectangles(HealthBarRed, 16, 4);
             HealthBarGreenRectangles = SetAnimationRectangles(HealthBarGreen, 16, 4);
             NumbersRectangles = SetAnimationRectangles(Numbers, 42, 13);

@@ -4,6 +4,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Enemy;
 using OriginOfLoot.Types.Static;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -11,10 +12,10 @@ namespace OriginOfLoot.Types.Projectile
 {
     public class StaffProjectile : IActiveProjectile
     {
-        private Texture2D _texture = TextureStore.RotatorProjectile;
-        private float _speed { get; set; } = 250f;
-        private float _timePerFrame { get; set; } = 0.03f; // no animation made yet
-        private float _currentFrameTime { get; set; } = 0f; // no animation made yet
+        private Texture2D _texture = TextureStore.StaffProjectile;
+        private float _speed { get; set; } = 350f;
+        private float _timePerFrame { get; set; } = 0.05f;
+        private float _currentFrameTime { get; set; } = 0f;
 
         public List<IActiveEnemy> EnemiesHit { get; set; } = new();
         public Vector2 Position { get; private set; }
@@ -22,8 +23,8 @@ namespace OriginOfLoot.Types.Projectile
         public Rectangle Rectangle { get; private set; }
         public bool FacingRight { get; private set; }
         public int Damage { get; set; } = 40;
-        public int TotalFrames { get; } = 6; // no animation made yet
-        public int CurrentFrame { get; private set; } = 1; // no animation made yet
+        public int TotalFrames { get; } = 6;
+        public int CurrentFrame { get; private set; } = 1;
 
         public StaffProjectile(Vector2 position, Vector2 direction, bool facingRight)
         {
@@ -41,14 +42,24 @@ namespace OriginOfLoot.Types.Projectile
         {
             Position += Velocity * deltaTime;
             Rectangle = Geometry.NewRectangle(Position, _texture);
+
+            if (_currentFrameTime > _timePerFrame)
+            {
+                CurrentFrame = (CurrentFrame < TotalFrames) ? CurrentFrame + 1 : 0;
+                _currentFrameTime = 0;
+            }
+            else
+            {
+                _currentFrameTime += deltaTime;
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch) 
         {
             spriteBatch.Draw(
-                texture: TextureStore.StaffProjectile, // no animation made yet
+                texture: _texture,
                 position: Position,
-                sourceRectangle: default, // no animation made yet
+                sourceRectangle: TextureStore.StaffProjectileRectangles[Math.Clamp(CurrentFrame - 1, 0, TotalFrames - 1)],
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
