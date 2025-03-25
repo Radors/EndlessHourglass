@@ -14,7 +14,7 @@ namespace OriginOfLoot.Types.Projectile
     {
         private Texture2D _texture = TextureStore.RedRangedProjectile;
         private float _speed { get; set; } = 250f;
-        private float _timePerFrame { get; set; } = 0.08f;
+        private float _timePerFrame { get; set; } = 0.07f;
         private float _currentFrameTime { get; set; } = 0f;
 
         public List<IActiveEnemy> EnemiesHit { get; set; } = new();

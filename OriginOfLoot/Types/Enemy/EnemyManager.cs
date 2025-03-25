@@ -53,8 +53,8 @@ namespace OriginOfLoot.Types.Enemy
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
 
             var choice = _random.Next(10);
-            IActiveEnemy enemy = GameStage >= 3 && choice == 0 ? new RedRanged(spawnPosition, spawnDirection, this) :
-                                                                 new RedMelee(spawnPosition, spawnDirection);
+            IActiveEnemy enemy = /* GameStage >= 3 && */ choice == 0 ? new RedRanged(spawnPosition, spawnDirection, this) :
+                                                                       new RedMelee(spawnPosition, spawnDirection);
 
             Enemies.Add(enemy);
         }
