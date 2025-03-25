@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Collisions.Layers;
+using OriginOfLoot.Types.Projectile;
 using OriginOfLoot.Types.Static;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,9 @@ namespace OriginOfLoot.Types.Enemy
         private readonly Vector2 _healthBarOffset = new Vector2(0, 32);
         private Vector2 _velocity;
         private float _speed = 50f;
+        private float _fireRate = 3f;
+        private float _timeSinceFired = 0f;
+        private readonly EnemyManager _enemyManager;
 
         public Vector2 Position { get; private set; }
         public Rectangle Rectangle { get; private set; }
@@ -22,12 +26,13 @@ namespace OriginOfLoot.Types.Enemy
         public int MaxHealth { get; } = 140;
         public int CurrentHealth { get; set; }
 
-        public RedRanged(Vector2 position, Vector2 direction)
+        public RedRanged(Vector2 position, Vector2 direction, EnemyManager enemyManager)
         {
             Position = position;
             _velocity = direction * _speed;
             Rectangle = Geometry.NewRectangle(position, _texture);
             CurrentHealth = MaxHealth;
+            _enemyManager = enemyManager;
         }
 
         public int HealthBarIndex()
@@ -42,6 +47,16 @@ namespace OriginOfLoot.Types.Enemy
             _velocity = direction * _speed;
             Position += _velocity * deltaTime;
             Rectangle = Geometry.NewRectangle(Position, _texture);
+
+            if (_timeSinceFired > _fireRate)
+            {
+                _enemyManager.NewEnemyProjectile(this);
+                _timeSinceFired = 0;
+            }
+            else
+            {
+                _timeSinceFired += deltaTime;
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch)

@@ -12,7 +12,6 @@ namespace OriginOfLoot.Types.Projectile
         public Vector2 Position { get; }
         public Vector2 Velocity { get; }
         public Rectangle Rectangle { get; }
-        public bool FacingRight { get; }
         public int Damage { get; set; }
         public int TotalFrames { get; }
         public int CurrentFrame { get; }

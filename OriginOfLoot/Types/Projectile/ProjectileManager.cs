@@ -13,7 +13,8 @@ namespace OriginOfLoot.Types.Projectile
 {
     public class ProjectileManager
     {
-        public List<IActiveProjectile> Projectiles { get; set; } = new();
+        public List<IActiveProjectile> PlayerProjectiles { get; set; } = new();
+        public List<IActiveProjectile> EnemyProjectiles { get; set; } = new();
         private readonly ActivePlayer _player;
         private readonly EnemyManager _enemyManager;
 
@@ -35,19 +36,23 @@ namespace OriginOfLoot.Types.Projectile
                 Staff => new StaffProjectile(position, direction, _player.FacingRight),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            Projectiles.Add(projectile);
+            PlayerProjectiles.Add(projectile);
         }
 
         public void Update(float deltaTime, Vector2 pointerPos)
         {
             // Update
-            foreach (var projectile in Projectiles)
+            foreach (var projectile in PlayerProjectiles)
+            {
+                projectile.Update(deltaTime);
+            }
+            foreach (var projectile in EnemyProjectiles)
             {
                 projectile.Update(deltaTime);
             }
 
             // Collision
-            foreach (var projectile in Projectiles)
+            foreach (var projectile in PlayerProjectiles)
             {
                 foreach (var enemy in _enemyManager.Enemies)
                 {
@@ -60,8 +65,18 @@ namespace OriginOfLoot.Types.Projectile
                 }
             }
 
+            // Transfer projectiles to this manager
+            EnemyProjectiles.AddRange(_enemyManager.EnemyProjectilesToSpawn);
+            _enemyManager.EnemyProjectilesToSpawn.Clear();
+
             // Boundary
-            Projectiles.RemoveAll(n =>
+            PlayerProjectiles.RemoveAll(n =>
+                n.Position.X < 0 ||
+                n.Position.Y < 0 ||
+                n.Position.X > ConstConfig.ViewPixelsX ||
+                n.Position.Y > ConstConfig.ViewPixelsY
+            );
+            EnemyProjectiles.RemoveAll(n =>
                 n.Position.X < 0 ||
                 n.Position.Y < 0 ||
                 n.Position.X > ConstConfig.ViewPixelsX ||
@@ -71,7 +86,11 @@ namespace OriginOfLoot.Types.Projectile
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (var projectile in Projectiles)
+            foreach (var projectile in PlayerProjectiles)
+            {
+                projectile.Draw(spriteBatch);
+            }
+            foreach (var projectile in EnemyProjectiles)
             {
                 projectile.Draw(spriteBatch);
             }

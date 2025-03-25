@@ -13,7 +13,7 @@ namespace OriginOfLoot.Types.Projectile
     public class RotatorProjectile : IActiveProjectile
     {
         private Texture2D _texture = TextureStore.RotatorProjectile;
-        private float _speed { get; set; } = 350f;
+        private float _speed { get; set; } = 400f;
         private float _timePerFrame { get; set; } = 0.04f;
         private float _currentFrameTime { get; set; } = 0f;
 

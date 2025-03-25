@@ -17,6 +17,7 @@ namespace OriginOfLoot.Types.Static
         public static Texture2D RedMelee { get; private set; }
         public static Texture2D RedMeleeEffect { get; private set; }
         public static Texture2D RedRanged { get; private set; }
+        public static Texture2D RedRangedProjectile { get; private set; }
         public static Texture2D HealthBarRed { get; private set; }
         public static Texture2D HealthBarGreen { get; private set; }
         public static Texture2D Numbers { get; private set; }
@@ -27,6 +28,7 @@ namespace OriginOfLoot.Types.Static
         public static List<Rectangle> HealthBarGreenRectangles { get; private set; }
         public static List<Rectangle> NumbersRectangles { get; private set; }
         public static List<Rectangle> RedMeleeEffectRectangles { get; private set; }
+        public static List<Rectangle> RedRangedProjectileRectangles { get; private set; }
 
         public static void Setup(ContentManager contentManager)
         {
@@ -39,6 +41,7 @@ namespace OriginOfLoot.Types.Static
             RedMelee = contentManager.Load<Texture2D>("ase_prod/redMelee");
             RedMeleeEffect = contentManager.Load<Texture2D>("ase_prod/redMeleeEffect");
             RedRanged = contentManager.Load<Texture2D>("ase_prod/redRanged");
+            RedRangedProjectile = contentManager.Load<Texture2D>("ase_prod/redRangedProjectile");
             HealthBarRed = contentManager.Load<Texture2D>("ase_prod/healthBarRed");
             HealthBarGreen = contentManager.Load<Texture2D>("ase_prod/healthBarGreen");
             Font = contentManager.Load<BitmapFont>("font/current");
@@ -50,6 +53,7 @@ namespace OriginOfLoot.Types.Static
             HealthBarGreenRectangles = SetAnimationRectangles(HealthBarGreen, 16, 4);
             NumbersRectangles = SetAnimationRectangles(Numbers, 42, 13);
             RedMeleeEffectRectangles = SetAnimationRectangles(RedMeleeEffect, 16, 16);
+            RedRangedProjectileRectangles = SetAnimationRectangles(RedRangedProjectile, 8, 8);
         }
 
         public static List<Rectangle> SetAnimationRectangles(Texture2D texture, int width, int height)

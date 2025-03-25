@@ -13,7 +13,7 @@ namespace OriginOfLoot.Types.Enemy
 {
     public class EnemyManager
     {
-        private const float _totalTimePerStage = 12f;
+        private const float _totalTimePerStage = 15f;
         private readonly ActivePlayer _player;
         private readonly Random _random = new Random();
         private readonly int _xSpawnMax;
@@ -21,6 +21,7 @@ namespace OriginOfLoot.Types.Enemy
 
         public List<IActiveEnemy> Enemies { get; private set; } = new();
         public List<IAttachedEffect> AttachedEffects { get; private set; } = new();
+        public List<IActiveProjectile> EnemyProjectilesToSpawn { get; private set; } = new();
         public int GameStage { get; private set; } = 1;
         public float GameStageTimeLeft { get; private set; }
         public float TimeToNextSpawn { get; private set; } = 0;
@@ -52,10 +53,18 @@ namespace OriginOfLoot.Types.Enemy
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
 
             var choice = _random.Next(10);
-            IActiveEnemy enemy = GameStage >= 5 && choice == 0 ? new RedRanged(spawnPosition, spawnDirection) :
+            IActiveEnemy enemy = GameStage >= 3 && choice == 0 ? new RedRanged(spawnPosition, spawnDirection, this) :
                                                                  new RedMelee(spawnPosition, spawnDirection);
 
             Enemies.Add(enemy);
+        }
+
+        public void NewEnemyProjectile(IActiveEnemy enemy)
+        {
+            var direction = Geometry.Direction(enemy.Position, _player.Position);
+            var projectile = new RedRangedProjectile(enemy.Position, direction);
+
+            EnemyProjectilesToSpawn.Add(projectile);
         }
 
         public void Update(float deltaTime)
@@ -75,7 +84,7 @@ namespace OriginOfLoot.Types.Enemy
             if (TimeToNextSpawn <= 0)
             {
                 SpawnEnemy();
-                TimeToNextSpawn = 2f / (1f + GameStage);
+                TimeToNextSpawn = 2f / GameStage;
             }
             else
             {
