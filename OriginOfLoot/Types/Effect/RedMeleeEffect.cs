@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using OriginOfLoot.Types.Interfaces;
 using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Static;
 using System;
@@ -12,9 +13,8 @@ namespace OriginOfLoot.Types.Effect
         private readonly ActivePlayer _player;
         private const float _totalTimeToLive = 0.30f;
         private float _currentTimeAlive = 0f;
-
-        public int TotalFrames { get; } = 11;
-        public int CurrentFrame { get; private set; } = 1;
+        private const int _totalFrames = 11;
+        private int _currentFrame = 1;
 
         public RedMeleeEffect(Vector2 direction, ActivePlayer player)
         {
@@ -22,9 +22,14 @@ namespace OriginOfLoot.Types.Effect
             _player = player;
         }
 
+        public bool IsFinished()
+        {
+            return _currentFrame > _totalFrames;
+        }
+
         public void Update(float deltaTime)
         {
-            CurrentFrame = (int)(_currentTimeAlive / (_totalTimeToLive / TotalFrames));
+            _currentFrame = (int)(_currentTimeAlive / (_totalTimeToLive / _totalFrames));
 
             _currentTimeAlive += deltaTime;
         }
@@ -34,7 +39,7 @@ namespace OriginOfLoot.Types.Effect
             spriteBatch.Draw(
                 texture: TextureStore.RedMeleeEffect,
                 position: _player.Rectangle.Center.ToVector2() + (_direction * 10),
-                sourceRectangle: TextureStore.RedMeleeEffectRectangles[Math.Clamp(CurrentFrame-1, 0, TotalFrames - 1)],
+                sourceRectangle: TextureStore.RedMeleeEffectRectangles[Math.Clamp(_currentFrame - 1, 0, _totalFrames - 1)],
                 color: Color.White,
                 rotation: 0f,
                 origin: new Vector2(8, 8),

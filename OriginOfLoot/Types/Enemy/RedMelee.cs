@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
-using MonoGame.Extended.Collisions.Layers;
+using OriginOfLoot.Types.Interfaces;
+using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Static;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,13 @@ using System.Diagnostics;
 
 namespace OriginOfLoot.Types.Enemy
 {
-    public class RedMelee : IActiveEnemy
+    public class RedMelee : IEnemy
     {
         private Texture2D _texture = TextureStore.RedMelee;
         private readonly Vector2 _healthBarOffset = new Vector2(0, 32);
         private Vector2 _velocity;
         private float _speed = 50f;
+        private readonly ActivePlayer _player;
 
         public Vector2 Position { get; private set; }
         public Rectangle Rectangle { get; private set; }
@@ -22,23 +23,24 @@ namespace OriginOfLoot.Types.Enemy
         public int MaxHealth { get; } = 140;
         public int CurrentHealth { get; set; }
 
-        public RedMelee(Vector2 position, Vector2 direction)
+        public RedMelee(Vector2 position, Vector2 direction, ActivePlayer player)
         {
             Position = position;
             _velocity = direction * _speed;
             Rectangle = Geometry.NewRectangle(position, _texture);
             CurrentHealth = MaxHealth;
+            _player = player;
         }
 
         public int HealthBarIndex()
         {
-            int frame = (int)(CurrentHealth / 10f);
+            int frame = (int)(CurrentHealth / (MaxHealth/14f));
             return ConstConfig.StandardHealthBarTotalFrames - frame - 1;
         }
 
-        public void Update(float deltaTime, Vector2 playerPosition)
+        public void Update(float deltaTime)
         {
-            var direction = Geometry.Direction(Position, playerPosition);
+            var direction = Geometry.Direction(Position, _player.Position);
             _velocity = direction * _speed;
             Position += _velocity * deltaTime;
             Rectangle = Geometry.NewRectangle(Position, _texture);

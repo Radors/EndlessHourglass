@@ -1,24 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Collisions.Layers;
-using MonoGame.Extended.ViewportAdapters;
-using OriginOfLoot.Types.Enemy;
-using OriginOfLoot.Types.Player.PlayerWeapon;
+using OriginOfLoot.Types.Interfaces;
+using OriginOfLoot.Types.Player.Weapon;
 using OriginOfLoot.Types.Static;
 using System;
 
 namespace OriginOfLoot.Types.Player
 {
-    public class ActivePlayer
+    public class ActivePlayer : IEntity, ICollidable, IDamageReceiver
     {
         private Vector2 _healthBarOffset = new Vector2(0, 32);
         private float _speed = 180f;
         private Vector2 _velocity = new();
 
         public Vector2 InputDirection { get; set; } = new();
-        public Vector2 Position { get; set; } = new();
-        public Rectangle Rectangle { get; set; } = new();
-        public IPlayerWeapon Weapon { get; set; } = new Rotator();
+        public Vector2 Position { get; private set; } = new();
+        public Rectangle Rectangle { get; private set; } = new();
+        public IWeapon Weapon { get; set; } = new Rotator();
         public bool FacingRight { get; set; } = true;
         public int MaxHealth { get; } = 140;
         public int CurrentHealth { get; set; }
@@ -41,7 +39,7 @@ namespace OriginOfLoot.Types.Player
 
         public int HealthBarIndex()
         {
-            int frame = (int)(CurrentHealth / 10f);
+            int frame = (int)(CurrentHealth / (MaxHealth / 14f));
             return ConstConfig.StandardHealthBarTotalFrames - frame - 1;
         }
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Enemy;
+using OriginOfLoot.Types.Interfaces;
 using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Player.PlayerWeapon;
+using OriginOfLoot.Types.Player.Weapon;
 using OriginOfLoot.Types.Static;
 using System;
 using System.Collections.Generic;
@@ -13,8 +13,8 @@ namespace OriginOfLoot.Types.Projectile
 {
     public class ProjectileManager
     {
-        public List<IActiveProjectile> PlayerProjectiles { get; set; } = new();
-        public List<IActiveProjectile> EnemyProjectiles { get; set; } = new();
+        public List<IProjectile> PlayerProjectiles { get; set; } = new();
+        public List<IProjectile> EnemyProjectiles { get; set; } = new();
         private readonly ActivePlayer _player;
         private readonly EnemyManager _enemyManager;
 
@@ -30,7 +30,7 @@ namespace OriginOfLoot.Types.Projectile
             var direction = new Vector2(pointerPos.X - (position.X + _player.ProjectileDirectionOffset().X),
                                         pointerPos.Y - (position.Y + _player.ProjectileDirectionOffset().Y));
 
-            IActiveProjectile projectile = _player.Weapon switch
+            IProjectile projectile = _player.Weapon switch
             {
                 Rotator => new RotatorProjectile(position, direction, _player.FacingRight),
                 Staff => new StaffProjectile(position, direction, _player.FacingRight),
@@ -41,6 +41,10 @@ namespace OriginOfLoot.Types.Projectile
 
         public void Update(float deltaTime, Vector2 pointerPos)
         {
+            // Transfer projectiles to this manager
+            EnemyProjectiles.AddRange(_enemyManager.EnemyProjectilesToSpawn);
+            _enemyManager.EnemyProjectilesToSpawn.Clear();
+
             // Update
             foreach (var projectile in PlayerProjectiles)
             {
@@ -56,18 +60,23 @@ namespace OriginOfLoot.Types.Projectile
             {
                 foreach (var enemy in _enemyManager.Enemies)
                 {
-                    if (!projectile.EnemiesHit.Contains(enemy) &&
-                        Geometry.RectangularCollision(projectile.Rectangle, enemy.Rectangle))
+                    if (!projectile.HasCollidedWith.Contains(enemy) &&
+                        Geometry.RectangularCollisionWithOverlap(enemy.Rectangle, 5, 8, projectile.Rectangle))
                     {
-                        projectile.EnemiesHit.Add(enemy);
+                        projectile.HasCollidedWith.Add(enemy);
                         enemy.CurrentHealth -= projectile.Damage;
                     }
                 }
             }
-
-            // Transfer projectiles to this manager
-            EnemyProjectiles.AddRange(_enemyManager.EnemyProjectilesToSpawn);
-            _enemyManager.EnemyProjectilesToSpawn.Clear();
+            foreach (var projectile in EnemyProjectiles)
+            {
+                if (!projectile.HasCollidedWith.Contains(_player) &&
+                        Geometry.CircularCollision(projectile.Rectangle, 20, _player.Rectangle))
+                {
+                    projectile.HasCollidedWith.Add(_player);
+                    _player.CurrentHealth -= projectile.Damage;
+                }
+            }
 
             // Boundary
             PlayerProjectiles.RemoveAll(n =>

@@ -21,6 +21,16 @@ namespace OriginOfLoot.Types.Static
             return aRight && aLeft && aTop && aBottom;
         }
 
+        public static bool RectangularCollisionWithOverlap(Rectangle rectangleA, int overlapX, int overlapY, Rectangle rectangleB)
+        {
+            bool aRight = rectangleB.Left <= rectangleA.Right - overlapX;
+            bool aLeft = rectangleB.Right >= rectangleA.Left + overlapX;
+            bool aTop = rectangleB.Bottom >= rectangleA.Top + overlapY;
+            bool aBottom = rectangleB.Top <= rectangleA.Bottom - overlapY;
+
+            return aRight && aLeft && aTop && aBottom;
+        }
+
         public static bool CircularCollision(Rectangle rectangleA, float radius, Rectangle rectangleB)
         {
             float deltaX = rectangleB.X + rectangleB.Width / 2f -

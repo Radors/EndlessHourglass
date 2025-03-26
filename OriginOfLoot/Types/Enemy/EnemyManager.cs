@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using OriginOfLoot.Types.Static;
-using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
 using System.Collections.Generic;
 using System;
 using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Effect;
 using System.Diagnostics;
+using OriginOfLoot.Types.Interfaces;
 
 namespace OriginOfLoot.Types.Enemy
 {
@@ -19,9 +19,9 @@ namespace OriginOfLoot.Types.Enemy
         private readonly int _xSpawnMax;
         private readonly int _ySpawnMax;
 
-        public List<IActiveEnemy> Enemies { get; private set; } = new();
+        public List<IEnemy> Enemies { get; private set; } = new();
         public List<IAttachedEffect> AttachedEffects { get; private set; } = new();
-        public List<IActiveProjectile> EnemyProjectilesToSpawn { get; private set; } = new();
+        public List<IProjectile> EnemyProjectilesToSpawn { get; private set; } = new();
         public int GameStage { get; private set; } = 1;
         public float GameStageTimeLeft { get; private set; }
         public float TimeToNextSpawn { get; private set; } = 0;
@@ -53,13 +53,13 @@ namespace OriginOfLoot.Types.Enemy
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
 
             var choice = _random.Next(10);
-            IActiveEnemy enemy = /* GameStage >= 3 && */ choice == 0 ? new RedRanged(spawnPosition, spawnDirection, this) :
-                                                                       new RedMelee(spawnPosition, spawnDirection);
+            IEnemy enemy = /* GameStage >= 3 && */ choice == 0 ? new RedRanged(spawnPosition, spawnDirection, _player, this) :
+                                                                       new RedMelee(spawnPosition, spawnDirection, _player);
 
             Enemies.Add(enemy);
         }
 
-        public void NewEnemyProjectile(IActiveEnemy enemy)
+        public void NewEnemyProjectile(IEnemy enemy)
         {
             var direction = Geometry.Direction(enemy.Position, _player.Position);
             var projectile = new RedRangedProjectile(enemy.Position, direction);
@@ -94,7 +94,7 @@ namespace OriginOfLoot.Types.Enemy
             // Update
             foreach (var enemy in Enemies)
             {
-                enemy.Update(deltaTime, _player.Position);
+                enemy.Update(deltaTime);
             }
             foreach (var effect in AttachedEffects)
             {
@@ -114,7 +114,7 @@ namespace OriginOfLoot.Types.Enemy
             }
 
             // Remove effects
-            AttachedEffects.RemoveAll(n => n.CurrentFrame > n.TotalFrames);
+            AttachedEffects.RemoveAll(n => n.IsFinished());
 
             // Remove enemies
             Enemies.RemoveAll(n => n.CurrentHealth <= 0);

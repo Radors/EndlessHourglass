@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Player.PlayerWeapon;
 using OriginOfLoot.Types.Projectile;
 using OriginOfLoot.Types.Enemy;
 using OriginOfLoot.Types.Static;

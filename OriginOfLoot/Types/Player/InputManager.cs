@@ -1,13 +1,9 @@
-﻿
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended;
-using MonoGame.Extended.Collisions.Layers;
 using OriginOfLoot.Types.Enemy;
-using OriginOfLoot.Types.Player.PlayerWeapon;
+using OriginOfLoot.Types.Player.Weapon;
 using OriginOfLoot.Types.Projectile;
 using OriginOfLoot.Types.Static;
-using System;
 
 namespace OriginOfLoot.Types.Player
 {
