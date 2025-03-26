@@ -12,7 +12,7 @@ namespace OriginOfLoot.Types.Projectile
     {
         private Texture2D _texture = TextureStore.RedRangedProjectile;
         private Vector2 _velocity = new();
-        private float _speed = 250f;
+        private float _speed = 270f;
         private float _timePerFrame = 0.08f;
         private float _currentFrameTime = 0f;
         private int _totalFrames = 4;

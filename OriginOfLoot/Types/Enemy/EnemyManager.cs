@@ -5,15 +5,15 @@ using OriginOfLoot.Types.Projectile;
 using System.Collections.Generic;
 using System;
 using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Effect;
 using System.Diagnostics;
 using OriginOfLoot.Types.Interfaces;
+using System.Linq;
 
 namespace OriginOfLoot.Types.Enemy
 {
     public class EnemyManager
     {
-        private const float _totalTimePerStage = 15f;
+        private const float _totalTimePerStage = 13f;
         private readonly ActivePlayer _player;
         private readonly Random _random = new Random();
         private readonly int _xSpawnMax;
@@ -52,10 +52,22 @@ namespace OriginOfLoot.Types.Enemy
             var spawnPosition = NewSpawnPosition();
             var spawnDirection = Geometry.Direction(spawnPosition, _player.Position);
 
-            var choice = _random.Next(10);
-            IEnemy enemy = /* GameStage >= 3 && */ choice == 0 ? new RedRanged(spawnPosition, spawnDirection, _player, this) :
-                                                                       new RedMelee(spawnPosition, spawnDirection, _player);
-
+            int random = _random.Next(10);
+            IEnemy enemy;
+            if (Enemies.Where(n => n is RedRanged).Count() < 3)
+            {
+                enemy = (GameStage, random) switch
+                {
+                    ( >= 10, < 4) => new RedRanged(spawnPosition, spawnDirection, _player, this),
+                    ( >= 4, < 3) => new RedRanged(spawnPosition, spawnDirection, _player, this),
+                    (_, < 2) => new RedRanged(spawnPosition, spawnDirection, _player, this),
+                    (_, _) => new RedMelee(spawnPosition, spawnDirection, _player)
+                };
+            }
+            else
+            {
+                enemy = new RedMelee(spawnPosition, spawnDirection, _player);
+            }
             Enemies.Add(enemy);
         }
 
@@ -84,7 +96,7 @@ namespace OriginOfLoot.Types.Enemy
             if (TimeToNextSpawn <= 0)
             {
                 SpawnEnemy();
-                TimeToNextSpawn = 2f / GameStage;
+                TimeToNextSpawn = GameStage < 4 ? 2f / GameStage : 2f / 4;
             }
             else
             {

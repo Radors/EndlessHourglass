@@ -14,7 +14,7 @@ namespace OriginOfLoot.Types.Enemy
         private Texture2D _texture = TextureStore.RedMelee;
         private readonly Vector2 _healthBarOffset = new Vector2(0, 32);
         private Vector2 _velocity;
-        private float _speed = 50f;
+        private float _speed = 55f;
         private readonly ActivePlayer _player;
 
         public Vector2 Position { get; private set; }

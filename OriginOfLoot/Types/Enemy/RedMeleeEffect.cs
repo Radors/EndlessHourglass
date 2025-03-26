@@ -5,7 +5,7 @@ using OriginOfLoot.Types.Player;
 using OriginOfLoot.Types.Static;
 using System;
 
-namespace OriginOfLoot.Types.Effect
+namespace OriginOfLoot.Types.Enemy
 {
     public class RedMeleeEffect : IAttachedEffect
     {
@@ -38,7 +38,7 @@ namespace OriginOfLoot.Types.Effect
         {
             spriteBatch.Draw(
                 texture: TextureStore.RedMeleeEffect,
-                position: _player.Rectangle.Center.ToVector2() + (_direction * 10),
+                position: _player.Rectangle.Center.ToVector2() + _direction * 10,
                 sourceRectangle: TextureStore.RedMeleeEffectRectangles[Math.Clamp(_currentFrame - 1, 0, _totalFrames - 1)],
                 color: Color.White,
                 rotation: 0f,
