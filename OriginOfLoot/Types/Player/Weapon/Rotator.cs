@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using OriginOfLoot.Types.Interfaces;
+using EndlessHourglass.Types.Interfaces;
 
-namespace OriginOfLoot.Types.Player.Weapon
+namespace EndlessHourglass.Types.Player.Weapon
 {
     public class Rotator : IWeapon
     {

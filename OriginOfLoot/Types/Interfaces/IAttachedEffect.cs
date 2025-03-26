@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 
-namespace OriginOfLoot.Types.Interfaces
+namespace EndlessHourglass.Types.Interfaces
 {
     public interface IAttachedEffect
     {

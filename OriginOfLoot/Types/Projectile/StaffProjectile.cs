@@ -1,12 +1,12 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using OriginOfLoot.Types.Interfaces;
-using OriginOfLoot.Types.Static;
+using EndlessHourglass.Types.Interfaces;
+using EndlessHourglass.Types.Static;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace OriginOfLoot.Types.Projectile
+namespace EndlessHourglass.Types.Projectile
 {
     public class StaffProjectile : IProjectile
     {

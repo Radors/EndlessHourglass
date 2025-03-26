@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace OriginOfLoot.Types.Interfaces
+namespace EndlessHourglass.Types.Interfaces
 {
     public interface ICollisionTracker
     {

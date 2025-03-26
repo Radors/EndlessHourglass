@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.BitmapFonts;
 using System.Collections.Generic;
 
-namespace OriginOfLoot.Types.Static
+namespace EndlessHourglass.Types.Static
 {
     public static class TextureStore
     {

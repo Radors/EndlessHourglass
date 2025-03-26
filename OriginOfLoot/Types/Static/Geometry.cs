@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace OriginOfLoot.Types.Static
+namespace EndlessHourglass.Types.Static
 {
     public static class Geometry
     {

@@ -1,5 +1,5 @@
 ﻿
-namespace OriginOfLoot.Types.Static
+namespace EndlessHourglass.Types.Static
 {
     public static class ConstConfig
     {

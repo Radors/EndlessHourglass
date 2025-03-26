@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using OriginOfLoot.Types.Interfaces;
-using OriginOfLoot.Types.Player.Weapon;
-using OriginOfLoot.Types.Static;
+using EndlessHourglass.Types.Interfaces;
+using EndlessHourglass.Types.Player.Weapon;
+using EndlessHourglass.Types.Static;
 using System;
 
-namespace OriginOfLoot.Types.Player
+namespace EndlessHourglass.Types.Player
 {
     public class ActivePlayer : IEntity, ICollidable, IDamageReceiver
     {

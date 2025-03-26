@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using OriginOfLoot.Types.Interfaces;
-using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Static;
+using EndlessHourglass.Types.Interfaces;
+using EndlessHourglass.Types.Player;
+using EndlessHourglass.Types.Static;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace OriginOfLoot.Types.Enemy
+namespace EndlessHourglass.Types.Enemy
 {
     public class RedMelee : IEnemy
     {

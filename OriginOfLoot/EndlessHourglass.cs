@@ -8,14 +8,14 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
-using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Projectile;
-using OriginOfLoot.Types.Enemy;
-using OriginOfLoot.Types.Static;
+using EndlessHourglass.Types.Player;
+using EndlessHourglass.Types.Projectile;
+using EndlessHourglass.Types.Enemy;
+using EndlessHourglass.Types.Static;
 
-namespace OriginOfLoot
+namespace EndlessHourglass
 {
-    public class OriginOfLoot : Game
+    public class EndlessHourglass : Game
     {
         private GraphicsDeviceManager _graphics;
         private OrthographicCamera _camera;
@@ -27,7 +27,7 @@ namespace OriginOfLoot
         private ProjectileManager _projectileManager;
         private InputManager _inputManager;
 
-        public OriginOfLoot()
+        public EndlessHourglass()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -36,13 +36,25 @@ namespace OriginOfLoot
 
         protected override void Initialize()
         {
+            IsFixedTimeStep = false;
             Window.AllowUserResizing = false;
             DisplayMode displayMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
-            _graphics.PreferredBackBufferWidth = displayMode.Width;
-            _graphics.PreferredBackBufferHeight = displayMode.Height;
-            _graphics.IsFullScreen = true;
+            int width;
+            int height;
+            (width, height) = (displayMode.Width, displayMode.Height) switch
+            {
+                (<1280, <720) => (640, 360),
+                (<1920, <1080) => (1280, 720),
+                (<2560, <1440) => (1920, 1080),
+                (<3840, <2160) => (2560, 1440),
+                (>=3840, >=2160) => (3840, 2160),
+                (_, _) => (1280, 720)
+            };
+            _graphics.PreferredBackBufferWidth = width;
+            _graphics.PreferredBackBufferHeight = height;
+            _graphics.IsFullScreen = false;
+            Window.IsBorderless = true;
             _graphics.ApplyChanges();
-            IsFixedTimeStep = false;
 
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, ConstConfig.ViewPixelsX, ConstConfig.ViewPixelsY);
             _camera = new OrthographicCamera(_viewportAdapter);

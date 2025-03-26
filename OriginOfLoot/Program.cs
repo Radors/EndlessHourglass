@@ -1,2 +1,2 @@
-﻿using var game = new OriginOfLoot.OriginOfLoot();
+﻿using var game = new EndlessHourglass.EndlessHourglass();
 game.Run();

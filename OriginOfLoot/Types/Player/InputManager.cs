@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using OriginOfLoot.Types.Enemy;
-using OriginOfLoot.Types.Player.Weapon;
-using OriginOfLoot.Types.Projectile;
-using OriginOfLoot.Types.Static;
+using EndlessHourglass.Types.Enemy;
+using EndlessHourglass.Types.Player.Weapon;
+using EndlessHourglass.Types.Projectile;
+using EndlessHourglass.Types.Static;
 
-namespace OriginOfLoot.Types.Player
+namespace EndlessHourglass.Types.Player
 {
     public class InputManager
     {

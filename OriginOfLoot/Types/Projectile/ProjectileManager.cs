@@ -1,15 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using OriginOfLoot.Types.Enemy;
-using OriginOfLoot.Types.Interfaces;
-using OriginOfLoot.Types.Player;
-using OriginOfLoot.Types.Player.Weapon;
-using OriginOfLoot.Types.Static;
+using EndlessHourglass.Types.Enemy;
+using EndlessHourglass.Types.Interfaces;
+using EndlessHourglass.Types.Player;
+using EndlessHourglass.Types.Player.Weapon;
+using EndlessHourglass.Types.Static;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace OriginOfLoot.Types.Projectile
+namespace EndlessHourglass.Types.Projectile
 {
     public class ProjectileManager
     {
