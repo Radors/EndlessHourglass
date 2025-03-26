@@ -26,6 +26,7 @@ namespace EndlessHourglass
         private EnemyManager _enemyManager;
         private ProjectileManager _projectileManager;
         private InputManager _inputManager;
+        private bool _displayScoreScreen = false;
 
         public EndlessHourglass()
         {
@@ -59,10 +60,7 @@ namespace EndlessHourglass
             _viewportAdapter = new BoxingViewportAdapter(Window, GraphicsDevice, ConstConfig.ViewPixelsX, ConstConfig.ViewPixelsY);
             _camera = new OrthographicCamera(_viewportAdapter);
 
-            _player = new ActivePlayer();
-            _enemyManager = new EnemyManager(_player);
-            _projectileManager = new ProjectileManager(_player, _enemyManager);
-            _inputManager = new InputManager(_player, _projectileManager, _enemyManager);
+            NewManagers();
 
             base.Initialize();
         }
@@ -86,6 +84,11 @@ namespace EndlessHourglass
             }
 
             _inputManager.Update(deltaTime, kstate, mstate, pointerPos);
+            if (_displayScoreScreen)
+            {
+                base.Update(gameTime);
+                return;
+            }
             _player.Update(deltaTime);
             _projectileManager.Update(deltaTime, pointerPos);
             _enemyManager.Update(deltaTime);
@@ -101,8 +104,9 @@ namespace EndlessHourglass
                                samplerState: SamplerState.PointClamp,
                                sortMode: SpriteSortMode.FrontToBack,
                                blendState: BlendState.NonPremultiplied);
+            
             _spriteBatch.Draw(
-                texture: TextureStore.Map,
+                texture: _displayScoreScreen ? TextureStore.Map : TextureStore.Map, // create a score screen map
                 position: default,
                 sourceRectangle: default,
                 color: Color.White,
@@ -110,7 +114,7 @@ namespace EndlessHourglass
                 origin: default,
                 scale: 1f,
                 effects: default,
-                layerDepth: 0f
+                layerDepth: 0.1f
             );
             _spriteBatch.Draw(
                 texture: TextureStore.Numbers,
@@ -121,7 +125,7 @@ namespace EndlessHourglass
                 origin: default,
                 scale: 1f,
                 effects: default,
-                layerDepth: 0.1f
+                layerDepth: 0.2f
             );
             if (_enemyManager.GameStage > 19)
             {
@@ -134,8 +138,14 @@ namespace EndlessHourglass
                     origin: default,
                     scale: 1f,
                     effect: default,
-                    layerDepth: 0.1f
+                    layerDepth: 0.2f
                 );
+            }
+            if (_displayScoreScreen)
+            {
+                _spriteBatch.End();
+                base.Draw(gameTime);
+                return;
             }
 
             _player.Draw(_spriteBatch);
@@ -144,6 +154,30 @@ namespace EndlessHourglass
 
             _spriteBatch.End();
             base.Draw(gameTime);
+        }
+
+        public void NewManagers()
+        {
+            _player = new ActivePlayer(this);
+            _enemyManager = new EnemyManager(_player);
+            _projectileManager = new ProjectileManager(_player, _enemyManager);
+            _inputManager = new InputManager(_player, _projectileManager, this);
+        }
+
+        public void GameOver()
+        {
+            _displayScoreScreen = true;
+        }
+
+        public bool IsGameOver()
+        {
+            return _displayScoreScreen;
+        }
+
+        public void Restart()
+        {
+            _displayScoreScreen = false;
+            NewManagers();
         }
     }
 }

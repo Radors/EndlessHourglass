@@ -12,9 +12,10 @@ namespace EndlessHourglass.Types.Player
         private Vector2 _healthBarOffset = new Vector2(0, 32);
         private float _speed = 180f;
         private Vector2 _velocity = new();
+        private EndlessHourglass _game;
 
         public Vector2 InputDirection { get; set; } = new();
-        public Vector2 Position { get; private set; } = new();
+        public Vector2 Position { get; private set; } = new Vector2(250, 100);
         public Rectangle Rectangle { get; private set; } = new();
         public IWeapon Weapon { get; set; } = new Rotator();
         public bool FacingRight { get; set; } = true;
@@ -23,8 +24,9 @@ namespace EndlessHourglass.Types.Player
         public float TotalInvincibilityAfterHit { get; } = 0.30f;
         public float TimeSinceHit { get; private set; } = 0f;
 
-        public ActivePlayer()
+        public ActivePlayer(EndlessHourglass game)
         {
+            _game = game;
             CurrentHealth = MaxHealth;
         }
 
@@ -65,6 +67,11 @@ namespace EndlessHourglass.Types.Player
 
         public void Update(float deltaTime)
         {
+            if (CurrentHealth <= 0)
+            {
+                _game.GameOver();
+            }
+
             // Position
             _velocity = InputDirection * _speed;
             Position += _velocity * deltaTime;

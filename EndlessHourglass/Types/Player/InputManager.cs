@@ -11,22 +11,25 @@ namespace EndlessHourglass.Types.Player
     {
         private readonly ActivePlayer _player;
         private readonly ProjectileManager _projectileManager;
-        private readonly EnemyManager _enemyManager;
+        private readonly EndlessHourglass _game;
 
         private readonly Rectangle RotatorEquipRectangle = new Rectangle(269, 45, 1, 1);
         private readonly Rectangle StaffEquipRectangle = new Rectangle(388, 45, 1, 1);
 
-        public InputManager(ActivePlayer player, ProjectileManager projectileManager, EnemyManager enemyManager)
+        public InputManager(ActivePlayer player, ProjectileManager projectileManager, EndlessHourglass game)
         {
             _player = player;
             _projectileManager = projectileManager;
-            _enemyManager = enemyManager;
+            _game = game;
         }
 
         public void Update(float deltaTime, KeyboardState kstate, MouseState mstate, Vector2 pointerPos)
         {
+            if (_game.IsGameOver() && (kstate.IsKeyDown(Keys.Space) || kstate.IsKeyDown(Keys.Enter)))
+            {
+                _game.Restart();
+            }
 
-            // -------------------------------------------------
             Vector2 inputDirection = Vector2.Zero;
             if (kstate.IsKeyDown(Keys.Right) || kstate.IsKeyDown(Keys.D))
             {
