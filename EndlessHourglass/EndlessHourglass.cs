@@ -84,14 +84,12 @@ namespace EndlessHourglass
             }
 
             _inputManager.Update(deltaTime, kstate, mstate, pointerPos);
-            if (_displayScoreScreen)
+            if (!_displayScoreScreen)
             {
-                base.Update(gameTime);
-                return;
+                _player.Update(deltaTime);
+                _projectileManager.Update(deltaTime, pointerPos);
+                _enemyManager.Update(deltaTime);
             }
-            _player.Update(deltaTime);
-            _projectileManager.Update(deltaTime, pointerPos);
-            _enemyManager.Update(deltaTime);
 
             base.Update(gameTime);
         }
@@ -106,7 +104,7 @@ namespace EndlessHourglass
                                blendState: BlendState.NonPremultiplied);
             
             _spriteBatch.Draw(
-                texture: _displayScoreScreen ? TextureStore.Map : TextureStore.Map, // create a score screen map
+                texture: _displayScoreScreen ? TextureStore.MapEnd : TextureStore.Map,
                 position: default,
                 sourceRectangle: default,
                 color: Color.White,
@@ -141,16 +139,12 @@ namespace EndlessHourglass
                     layerDepth: 0.2f
                 );
             }
-            if (_displayScoreScreen)
+            if (!_displayScoreScreen)
             {
-                _spriteBatch.End();
-                base.Draw(gameTime);
-                return;
+                _player.Draw(_spriteBatch);
+                _projectileManager.Draw(_spriteBatch);
+                _enemyManager.Draw(_spriteBatch);
             }
-
-            _player.Draw(_spriteBatch);
-            _projectileManager.Draw(_spriteBatch);
-            _enemyManager.Draw(_spriteBatch);
 
             _spriteBatch.End();
             base.Draw(gameTime);

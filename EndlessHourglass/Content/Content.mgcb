@@ -50,6 +50,18 @@
 /processorParam:TextureFormat=Color
 /build:ase_prod/map.png
 
+#begin ase_prod/mapEnd.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:ase_prod/mapEnd.png
+
 #begin ase_prod/numbers.png
 /importer:TextureImporter
 /processor:TextureProcessor

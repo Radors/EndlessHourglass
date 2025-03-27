@@ -9,6 +9,7 @@ namespace EndlessHourglass.Types.Static
     public static class TextureStore
     {
         public static Texture2D Map { get; private set; }
+        public static Texture2D MapEnd { get; private set; }
         public static Texture2D Player { get; private set; }
         public static Texture2D Rotator { get; private set; }
         public static Texture2D Staff { get; private set; }
@@ -33,6 +34,7 @@ namespace EndlessHourglass.Types.Static
         public static void Setup(ContentManager contentManager)
         {
             Map = contentManager.Load<Texture2D>("ase_prod/map");
+            MapEnd = contentManager.Load<Texture2D>("ase_prod/mapEnd");
             Player = contentManager.Load<Texture2D>("ase_prod/player");
             Rotator = contentManager.Load<Texture2D>("ase_prod/rotator");
             Staff = contentManager.Load<Texture2D>("ase_prod/staff");
