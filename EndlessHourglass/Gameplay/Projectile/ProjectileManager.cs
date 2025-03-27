@@ -1,15 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using EndlessHourglass.Types.Enemy;
-using EndlessHourglass.Types.Interfaces;
-using EndlessHourglass.Types.Player;
-using EndlessHourglass.Types.Player.Weapon;
-using EndlessHourglass.Types.Static;
+using EndlessHourglass.Gameplay.Enemy;
+using EndlessHourglass.Gameplay.Interfaces;
+using EndlessHourglass.Gameplay.Player;
+using EndlessHourglass.Gameplay.Player.Weapon;
+using EndlessHourglass.Gameplay.Static;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace EndlessHourglass.Types.Projectile
+namespace EndlessHourglass.Gameplay.Projectile
 {
     public class ProjectileManager
     {
@@ -41,11 +41,9 @@ namespace EndlessHourglass.Types.Projectile
 
         public void Update(float deltaTime, Vector2 pointerPos)
         {
-            // Transfer projectiles to this manager
             EnemyProjectiles.AddRange(_enemyManager.EnemyProjectilesToSpawn);
             _enemyManager.EnemyProjectilesToSpawn.Clear();
 
-            // Update
             foreach (var projectile in PlayerProjectiles)
             {
                 projectile.Update(deltaTime);
@@ -55,7 +53,6 @@ namespace EndlessHourglass.Types.Projectile
                 projectile.Update(deltaTime);
             }
 
-            // Collision
             foreach (var projectile in PlayerProjectiles)
             {
                 foreach (var enemy in _enemyManager.Enemies)
@@ -78,14 +75,13 @@ namespace EndlessHourglass.Types.Projectile
                 }
             }
 
-            // Boundary
-            PlayerProjectiles.RemoveAll(n =>
-                n.Position.X < 0 ||
-                n.Position.Y < 0 ||
-                n.Position.X > ConstConfig.ViewPixelsX ||
-                n.Position.Y > ConstConfig.ViewPixelsY
-            );
-            EnemyProjectiles.RemoveAll(n =>
+            EnforceBoundary(PlayerProjectiles);
+            EnforceBoundary(EnemyProjectiles);
+        }
+
+        public void EnforceBoundary(List<IProjectile> projectiles)
+        {
+            projectiles.RemoveAll(n =>
                 n.Position.X < 0 ||
                 n.Position.Y < 0 ||
                 n.Position.X > ConstConfig.ViewPixelsX ||

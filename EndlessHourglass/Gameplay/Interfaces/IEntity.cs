@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessHourglass.Types.Interfaces
+namespace EndlessHourglass.Gameplay.Interfaces
 {
     public interface IEntity
     {

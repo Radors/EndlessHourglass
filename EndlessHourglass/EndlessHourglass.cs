@@ -8,10 +8,10 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
-using EndlessHourglass.Types.Player;
-using EndlessHourglass.Types.Projectile;
-using EndlessHourglass.Types.Enemy;
-using EndlessHourglass.Types.Static;
+using EndlessHourglass.Gameplay.Player;
+using EndlessHourglass.Gameplay.Projectile;
+using EndlessHourglass.Gameplay.Enemy;
+using EndlessHourglass.Gameplay.Static;
 
 namespace EndlessHourglass
 {

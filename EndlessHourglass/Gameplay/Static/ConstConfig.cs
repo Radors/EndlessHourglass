@@ -1,5 +1,5 @@
 ﻿
-namespace EndlessHourglass.Types.Static
+namespace EndlessHourglass.Gameplay.Static
 {
     public static class ConstConfig
     {

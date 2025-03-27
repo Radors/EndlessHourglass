@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace EndlessHourglass.Types.Interfaces
+namespace EndlessHourglass.Gameplay.Interfaces
 {
     public interface ICollidable
     {

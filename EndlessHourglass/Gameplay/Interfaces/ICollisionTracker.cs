@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EndlessHourglass.Types.Interfaces
+namespace EndlessHourglass.Gameplay.Interfaces
 {
     public interface ICollisionTracker
     {

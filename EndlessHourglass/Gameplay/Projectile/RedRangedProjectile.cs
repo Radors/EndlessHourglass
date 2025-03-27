@@ -1,37 +1,34 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using EndlessHourglass.Types.Interfaces;
-using EndlessHourglass.Types.Static;
+using EndlessHourglass.Gameplay.Interfaces;
+using EndlessHourglass.Gameplay.Static;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace EndlessHourglass.Types.Projectile
+namespace EndlessHourglass.Gameplay.Projectile
 {
-    public class RotatorProjectile : IProjectile
+    public class RedRangedProjectile : IProjectile
     {
-        private Texture2D _texture = TextureStore.RotatorProjectile;
+        private Texture2D _texture = TextureStore.RedRangedProjectile;
         private Vector2 _velocity = new();
-        private float _speed { get; set; } = 400f;
-        private float _timePerFrame { get; set; } = 0.04f;
-        private float _currentFrameTime { get; set; } = 0f;
-        private int _totalFrames = 6;
+        private float _speed = 270f;
+        private float _timePerFrame = 0.08f;
+        private float _currentFrameTime = 0f;
+        private int _totalFrames = 4;
         private int _currentFrame = 1;
-        private bool _facingRight = true;
 
         public List<IEntity> HasCollidedWith { get; set; } = new();
         public Vector2 Position { get; private set; }
         public Rectangle Rectangle { get; private set; }
-        public int Damage { get; set; } = 40;
+        public int Damage { get; private set; } = 40;
 
-        public RotatorProjectile(Vector2 position, Vector2 direction, bool facingRight)
+        public RedRangedProjectile(Vector2 position, Vector2 direction)
         {
             Position = position;
 
             direction.Normalize();
             _velocity = direction * _speed;
-
-            _facingRight = facingRight;
 
             Rectangle = Geometry.NewRectangle(position, _texture);
         }
@@ -57,12 +54,12 @@ namespace EndlessHourglass.Types.Projectile
             spriteBatch.Draw(
                 texture: _texture,
                 position: Position,
-                sourceRectangle: TextureStore.RotatorProjectileRectangles[Math.Clamp(_currentFrame - 1, 0, _totalFrames - 1)],
+                sourceRectangle: TextureStore.RedRangedProjectileRectangles[Math.Clamp(_currentFrame - 1, 0, _totalFrames - 1)],
                 color: Color.White,
                 rotation: 0f,
                 origin: default,
                 scale: 1f,
-                effects: _facingRight ? SpriteEffects.None : SpriteEffects.FlipHorizontally,
+                effects: default,
                 layerDepth: ConstConfig.StandardDepth + (Position.Y / ConstConfig.StandardDepthDivision) + 0.1f
             );
         }

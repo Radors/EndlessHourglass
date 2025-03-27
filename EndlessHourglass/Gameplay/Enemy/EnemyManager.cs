@@ -1,15 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using EndlessHourglass.Types.Static;
-using EndlessHourglass.Types.Projectile;
+using EndlessHourglass.Gameplay.Static;
+using EndlessHourglass.Gameplay.Projectile;
 using System.Collections.Generic;
 using System;
-using EndlessHourglass.Types.Player;
+using EndlessHourglass.Gameplay.Player;
 using System.Diagnostics;
-using EndlessHourglass.Types.Interfaces;
+using EndlessHourglass.Gameplay.Interfaces;
 using System.Linq;
 
-namespace EndlessHourglass.Types.Enemy
+namespace EndlessHourglass.Gameplay.Enemy
 {
     public class EnemyManager
     {
@@ -81,7 +81,6 @@ namespace EndlessHourglass.Types.Enemy
 
         public void Update(float deltaTime)
         {
-            // Progress GameStage
             if (GameStageTimeLeft <= 0)
             {
                 GameStage += 1;
@@ -92,7 +91,6 @@ namespace EndlessHourglass.Types.Enemy
                 GameStageTimeLeft -= deltaTime;
             }
 
-            // Spawn
             if (TimeToNextSpawn <= 0)
             {
                 SpawnEnemy();
@@ -103,7 +101,6 @@ namespace EndlessHourglass.Types.Enemy
                 TimeToNextSpawn -= deltaTime;
             }
 
-            // Update
             foreach (var enemy in Enemies)
             {
                 enemy.Update(deltaTime);
@@ -113,7 +110,6 @@ namespace EndlessHourglass.Types.Enemy
                 effect.Update(deltaTime);
             }
 
-            // Collision
             foreach (var enemy in Enemies)
             {
                 if (_player.TimeSinceHit > _player.TotalInvincibilityAfterHit && Geometry.CircularCollision(enemy.Rectangle, 22, _player.Rectangle))
@@ -125,10 +121,8 @@ namespace EndlessHourglass.Types.Enemy
                 }
             }
 
-            // Remove effects
             AttachedEffects.RemoveAll(n => n.IsFinished());
 
-            // Remove enemies
             Enemies.RemoveAll(n => n.CurrentHealth <= 0);
             Enemies.RemoveAll(n =>
                 n.Position.X < 0 ||

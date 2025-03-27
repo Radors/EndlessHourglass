@@ -1,18 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using EndlessHourglass.Types.Interfaces;
-using EndlessHourglass.Types.Player.Weapon;
-using EndlessHourglass.Types.Static;
+using EndlessHourglass.Gameplay.Interfaces;
+using EndlessHourglass.Gameplay.Player.Weapon;
+using EndlessHourglass.Gameplay.Static;
 using System;
 
-namespace EndlessHourglass.Types.Player
+namespace EndlessHourglass.Gameplay.Player
 {
     public class ActivePlayer : IEntity, ICollidable, IDamageReceiver
     {
-        private Vector2 _healthBarOffset = new Vector2(0, 32);
+        private readonly EndlessHourglass _game;
+        private readonly Vector2 _healthBarOffset = new Vector2(0, 32);
         private float _speed = 180f;
         private Vector2 _velocity = new();
-        private EndlessHourglass _game;
 
         public Vector2 InputDirection { get; set; } = new();
         public Vector2 Position { get; private set; } = new Vector2(250, 100);
@@ -72,17 +72,13 @@ namespace EndlessHourglass.Types.Player
                 _game.GameOver();
             }
 
-            // Position
             _velocity = InputDirection * _speed;
             Position += _velocity * deltaTime;
 
-            // Rectangle
             Rectangle = Geometry.NewRectangle(Position, TextureStore.Player);
 
-            // Invincibility
             TimeSinceHit += deltaTime;
 
-            // Boundary
             int Xmax = ConstConfig.ViewPixelsX - TextureStore.Player.Width;
             int Ymax = ConstConfig.ViewPixelsY - TextureStore.Player.Height;
             if (Position.X > Xmax)

@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using EndlessHourglass.Types.Interfaces;
-using EndlessHourglass.Types.Player;
-using EndlessHourglass.Types.Static;
+using EndlessHourglass.Gameplay.Interfaces;
+using EndlessHourglass.Gameplay.Player;
+using EndlessHourglass.Gameplay.Static;
 using System;
 
-namespace EndlessHourglass.Types.Enemy
+namespace EndlessHourglass.Gameplay.Enemy
 {
     public class RedMeleeEffect : IAttachedEffect
     {
