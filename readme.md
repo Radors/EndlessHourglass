@@ -51,11 +51,11 @@ You can download the game here:
 
 You can also build the game yourself:
 
-1. Clone the repository: *git clone https://github.com/Radors/EndlessHourglass*
+1. Clone the repository: `git clone https://github.com/Radors/EndlessHourglass`
 2. Go to the project directory, which carries the same name as the solution: /EndlessHourglass/EndlessHourglass/
 3. Build:
-* Windows: *dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=false -p:TieredCompilation=false --self-contained*
-* Linux: *dotnet publish -c Release -r linux-x64 -p:PublishReadyToRun=false -p:TieredCompilation=false --self-contained*
+* Windows: `dotnet publish -c Release -r win-x64 -p:PublishReadyToRun=false -p:TieredCompilation=false --self-contained`
+* Linux: `dotnet publish -c Release -r linux-x64 -p:PublishReadyToRun=false -p:TieredCompilation=false --self-contained`
 4. Find the output:
 * Windows: \EndlessHourglass\EndlessHourglass\bin\Release\net8.0\win-x64\publish
 * Linux: /EndlessHourglass/EndlessHourglass/bin/Release/net8.0/linux-x64/publish
